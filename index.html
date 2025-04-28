@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retro Bounce Game</title>
 
-<link rel="icon" href="favicon.png" type="image/png">
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.png" type="image/png">
 
     <!-- Open Graph and Twitter Card Meta Tags -->
     <meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
@@ -23,43 +24,45 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    
+
     <style>
       body {
-        padding: 0;
         margin: 0;
-        background-color: black;
+        padding: 0;
         overflow: hidden;
+        background: black;
+        color: white;
+        font-family: 'Press Start 2P', monospace;
       }
+
       #loading-message {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+        font-size: 18px;
+        color: white;
         font-family: 'Press Start 2P', monospace;
-        color: #FFFF00;
-        font-size: 1.5em;
-        text-shadow: 2px 2px #000;
-        z-index: 10;
         animation: flash 1.2s linear infinite;
+        z-index: 10;
       }
+
       @keyframes flash {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
       }
 
-      /* --- Credits counter style --- */
       #credits-counter {
         position: fixed;
-        bottom: 10px;
+        bottom: 200px;
         right: 10px;
-        background: none;
         color: #FFFF00; /* PacMan Yellow */
         font-family: 'Press Start 2P', monospace;
         font-size: 10px;
         opacity: 0.6;
         z-index: 999;
       }
+
       #credits-counter:hover {
         opacity: 1;
       }
@@ -78,6 +81,7 @@
       CREDITS: <span id="visitor-count">...</span>
     </div>
 
+    <!-- Visitor Count Script -->
     <script>
       fetch('https://api.countapi.xyz/hit/campdesign.smashhead/visits')
         .then(response => response.json())
