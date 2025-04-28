@@ -52,6 +52,21 @@
         z-index: 10;
         animation: flash 1.2s linear infinite;
       }
+      <style>
+#visitor-counter {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  opacity: 0.4;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  z-index: 999;
+}
+#visitor-counter:hover {
+  opacity: 1;
+}
+</style>
+      
 
       @keyframes flash {
         0%, 100% { opacity: 1; }
@@ -63,7 +78,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
     <script src="sketch.js"></script>
   </head>
-
+<div id="visitor-counter">
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=campdesign.smashhead" alt="Visitors" />
+</div>
   <body>
     <div id="loading-message">Loading...</div>
   </body>
