@@ -6,7 +6,12 @@ body {
   color: white;
   font-family: 'Press Start 2P', monospace;
 }
-
+#credits-counter {
+  position: fixed;
+  bottom: 200px;
+  right: 10px;
+  ...
+}
 #loading-message {
   position: absolute;
 a  left: 50%;
