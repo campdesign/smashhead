@@ -9,11 +9,11 @@ body {
 
 #credits-counter {
   position: fixed;
-  top: 200px;
+  top: 100px;
   right: 10px;
   color: #FFFF00;
   font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
+  font-size: 20px;
   opacity: 0.6;
   z-index: 999;
 }
