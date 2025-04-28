@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Bounce Game</title>
+
+    <!-- Open Graph and Twitter Card Meta Tags -->
+    <meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
+    <meta property="og:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
+    <meta property="og:image" content="https://editor.p5js.org/campdesign/full/OXlHW1ZRF/smashhead_openG.png">
+    <meta property="og:url" content="https://editor.p5js.org/campdesign/full/OXlHW1ZRF">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Play SmashHead! Retro Bounce Arcade Game">
+    <meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
+    <meta name="twitter:image" content="https://editor.p5js.org/campdesign/full/OXlHW1ZRF">
+    <!-- End Open Graph and Twitter Card Meta Tags -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+      body { padding: 0; margin: 0; background-color: black; overflow: hidden; }
+      #loading-message {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Press Start 2P', monospace;
+        color: #FFFF00;
+        font-size: 1.5em;
+        text-shadow: 2px 2px #000;
+        z-index: 10;
+      }
+    </style>
+
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        background-color: black;
+        overflow: hidden;
+      }
+      #loading-message {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Press Start 2P', monospace;
+        color: #FFFF00;
+        font-size: 1.5em;
+        text-shadow: 2px 2px #000;
+        z-index: 10;
+        animation: flash 1.2s linear infinite;
+      }
+
+      @keyframes flash {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+    <script src="sketch.js"></script>
+  </head>
+
+  <body>
+    <div id="loading-message">Loading...</div>
+  </body>
+</html>
