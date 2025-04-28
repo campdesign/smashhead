@@ -73,7 +73,7 @@ function setup() {
   hammerAngle = hammerRestAngle;
   hammerTargetAngle = hammerRestAngle;
 
-  smashHeadTargetY = height * 0.2;
+  HeadTargetY = height * 0.2;
 
   // Load head images
   normalHeadImages = [
@@ -141,13 +141,13 @@ function drawTitleScreen() {
     currentAttributionText = titleAttribution;
   }
 
-  // Animate SMASH HEAD logo
+  // Animate  HEAD logo
   titleHue = (titleHue + 1.5) % 360;
-  if (!smashHeadAnimDone) {
-    smashHeadY = lerp(smashHeadY, smashHeadTargetY, 0.08);
-    if (abs(smashHeadY - smashHeadTargetY) < 1) {
-      smashHeadY = smashHeadTargetY;
-      smashHeadAnimDone = true;
+  if (!HeadAnimDone) {
+    HeadY = lerp(HeadY, HeadTargetY, 0.08);
+    if (abs(HeadY - HeadTargetY) < 1) {
+      HeadY = HeadTargetY;
+      HeadAnimDone = true;
     }
   }
 
@@ -159,19 +159,19 @@ function drawTitleScreen() {
   push();
   colorMode(HSB, 360, 100, 100, 100);
   fill(titleHue, 90, 100);
-  text("SMASH", width / 2, smashHeadY);
-  text("HEAD", width / 2, smashHeadY + headlineSpacing);
+  text("", width / 2, HeadY);
+  text("HEAD", width / 2, HeadY + headlineSpacing);
   pop();
   colorMode(RGB, 255, 255, 255, 255);
 
-  if (smashHeadAnimDone) {
+  if (HeadAnimDone) {
     textSize(28);
     fill(pacManYellow);
-    text("It's a Banger", width / 2, smashHeadTargetY + headlineSpacing + 70);
+    text("It's a Banger", width / 2, HeadTargetY + headlineSpacing + 70);
 
     fill(pacManCyan);
     textSize(18);
-    text('High Score: ' + highScore, width / 2, smashHeadTargetY + headlineSpacing + 110);
+    text('High Score: ' + highScore, width / 2, HeadTargetY + headlineSpacing + 110);
 
     // Floating face animation
     let faceX = width / 2 + sin(frameCount * 0.05) * 100;
@@ -227,12 +227,12 @@ function drawCharacterSelect() {
     currentAttributionText = selectAttribution;
   }
 
-  // --- SmashHEAD Logo at Top (50% smaller) ---
+  // --- HEAD Logo at Top (50% smaller) ---
   textAlign(CENTER, CENTER);
   if (retroFont) textFont(retroFont);
   else textFont('monospace');
 
-  // --- SmashHEAD Logo Smaller at Top ---
+  // --- HEAD Logo Smaller at Top ---
   push();
   colorMode(HSB, 360, 100, 100, 100);
   fill((frameCount) % 360, 90, 100);
@@ -247,22 +247,17 @@ function drawCharacterSelect() {
 @ -100,8 +317,8 @@ function drawCharacterSelect() {
 
   // --- Pick Your Head Section ---
-  let centerX = width / 2;
-  let selectY = frameY + frameHeight + 170; // Lower heads
-  let spacing = 150; // tighter heads
-  let selectY = frameY + frameHeight + 180; // Push it lower
-  let spacing = 160; // Tighter together
-  let headNames = ["Ol' Greenie", "Blurg", "Frank"];
+let selectY = frameY + frameHeight + 240; // Move heads lower
+let spacing = 160; // Head spacing
 
-  selectHue = (selectHue + 1.5) % 360;
-@ -110,7 +327,7 @@ function drawCharacterSelect() {
-  push();
-  colorMode(HSB, 360, 100, 100, 100);
-  fill(selectHue, 90, 100);
-  text("Pick your head to SMASH!", centerX, selectY - 80); // headline above
-  text("Pick your head to SMASH!", centerX, selectY - 100);
-  pop();
-  colorMode(RGB, 255, 255, 255, 255);
+selectHue = (selectHue + 1.5) % 360;
+
+push();
+colorMode(HSB, 360, 100, 100, 100);
+fill(selectHue, 90, 100);
+text("Pick your head to SMASH!", centerX, selectY - 60); // Adjusted closer to heads
+pop();
+colorMode(RGB, 255, 255, 255, 255);
 
 @ -131,7 +348,7 @@ function drawCharacterSelect() {
 
