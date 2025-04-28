@@ -226,53 +226,76 @@ function drawCharacterSelect() {
     currentAttributionText = selectAttribution;
   }
 
-  // --- SmashHEAD Logo at Top (50% smaller) ---
+  // --- SmashHEAD Logo at Top ---
   textAlign(CENTER, CENTER);
   if (retroFont) textFont(retroFont);
   else textFont('monospace');
 
-  // --- SmashHEAD Logo Smaller at Top ---
   push();
   colorMode(HSB, 360, 100, 100, 100);
   fill((frameCount) % 360, 90, 100);
-@ -36,7 +254,6 @@ function drawCharacterSelect() {
-  let frameX = blockStartX - framePadding / 2;
-  let frameY = instructionY - framePadding * 1.5;
+  textSize(48);
+  text("SMASH HEAD", width / 2, height * 0.12);
+  pop();
+  colorMode(RGB, 255, 255, 255, 255);
 
-  // Instructions Array
+  // --- Instructions ---
   const instructionsArray = [
     "HOW TO PLAY",
     "",
-@ -100,8 +317,8 @@ function drawCharacterSelect() {
+    "• Move your head with arrow keys or mouse",
+    "• Smash bumpers for points",
+    "• Dodge the hammer!",
+    "",
+    "Press any head to start"
+  ];
+
+  let instructionY = height * 0.25;
+  textSize(18);
+  for (let i = 0; i < instructionsArray.length; i++) {
+    fill(pacManYellow);
+    text(instructionsArray[i], width / 2, instructionY + i * 30);
+  }
 
   // --- Pick Your Head Section ---
   let centerX = width / 2;
-  let selectY = frameY + frameHeight + 170; // Lower heads
-  let spacing = 150; // tighter heads
-  let selectY = frameY + frameHeight + 180; // Push it lower
-  let spacing = 160; // Tighter together
+  let selectY = height * 0.65; // LOWERED heads!
+  let spacing = 160;
   let headNames = ["Ol' Greenie", "Blurg", "Frank"];
 
   selectHue = (selectHue + 1.5) % 360;
-@ -110,7 +327,7 @@ function drawCharacterSelect() {
+
   push();
   colorMode(HSB, 360, 100, 100, 100);
   fill(selectHue, 90, 100);
-  text("Pick your head to SMASH!", centerX, selectY - 80); // headline above
+  textSize(24);
   text("Pick your head to SMASH!", centerX, selectY - 100);
   pop();
   colorMode(RGB, 255, 255, 255, 255);
 
-@ -131,7 +348,7 @@ function drawCharacterSelect() {
+  for (let i = 0; i < normalHeadImages.length; i++) {
+    let currentHeadWidth = 100;
+    let currentHeadHeight = 100;
+    let imgXPos = centerX + (i - 1) * spacing;
+    let hoverOffsetY = 0;
+    let hoverScale = 1;
 
     if (i === hoveredHeadIndex) {
       hoverOffsetY = -10 * abs(sin(millis() / 200));
-      hoverScale = 1.05;
       hoverScale = 1.08;
     }
 
     push();
-@ -153,3 +370,4 @@ function drawCharacterSelect() {
+    imageMode(CENTER);
+    translate(imgXPos, selectY + hoverOffsetY);
+    scale(hoverScale);
+    if (normalHeadImages[i]) {
+      image(normalHeadImages[i], 0, 0, currentHeadWidth, currentHeadHeight);
+    }
+    pop();
+
+    fill(pacManCyan);
+    textSize(16);
     text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
   }
 }
