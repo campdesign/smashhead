@@ -2028,7 +2028,3 @@ function userStartAudio() {
         });
     }
 } // End userStartAudio()
-
-// --- Final Check ---
-// Make sure there isn't an extra closing brace accidentally added somewhere
-// Or a missing one at the very end of the file (though the error points to line 2046 specifically)
