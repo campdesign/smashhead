@@ -286,7 +286,7 @@ function drawCharacterSelect() {
     // --- How to Play Box ---
     let instructionY = 160; // Moved down to fit logo
     let instructionWidth = width * 0.65;
-    let hammerScale = 0.6;
+    let hammerScale = 0.8;
     if (!hammerDisplayWidth || !hammerDisplayHeight) calculateImageSize();
     let hammerW = (hammerDisplayWidth || 100) * hammerScale;
     let hammerH = (hammerDisplayHeight || 150) * hammerScale;
@@ -312,8 +312,8 @@ function drawCharacterSelect() {
       "More smacks = more chaos = more wins."
     ];
 
-    let instructionSize = 16;
-    let lineSpacing = 30;
+    let instructionSize = 20;
+    let lineSpacing = 20;
     let estimatedLines = instructionsArray.length;
     let estTextHeight = estimatedLines * lineSpacing + 30;
     let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
