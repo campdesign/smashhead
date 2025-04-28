@@ -283,6 +283,27 @@ function drawCharacterSelect() {
     text("HEAD", width / 2, 100);
     pop();
 
+// Inside your drawCharacterSelect() after setting textAlign, textLeading
+
+for (let i = 0; i < instructionsArray.length; i++) {
+    let line = instructionsArray[i];
+    if (line.trim() !== "") {
+        push();
+        colorMode(HSB, 360, 100, 100, 100);
+
+        if (i === 0) { // HOW TO PLAY title
+            let pulse = 1 + 0.05 * sin(millis() / 300);
+            textSize(16 * pulse);
+        } else {
+            textSize(16);
+        }
+
+        fill((frameCount + i * 20) % 360, 80, 100);
+        text(line, textX, instructionY + i * lineSpacing, instructionWidth);
+        pop();
+    }
+}
+
     // --- How to Play Box ---
     let instructionY = 160; // Moved down to fit logo
     let instructionWidth = width * 0.65;
