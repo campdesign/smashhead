@@ -262,179 +262,164 @@ function drawTitleScreen() {
 }
 
 function drawCharacterSelect() {
-    background(pacManBlack);
+  background(pacManBlack);
 
-    // --- Music on Select Screen ---
-    if (!isMuted && !selectMusicStarted && musicSelect?.isLoaded()) {
-        musicSelect.loop();
-        selectMusicStarted = true;
-        currentAttributionText = selectAttribution;
-    }
+  // --- Music on Select Screen ---
+  if (!isMuted && !selectMusicStarted && musicSelect?.isLoaded()) {
+    musicSelect.loop();
+    selectMusicStarted = true;
+    currentAttributionText = selectAttribution;
+  }
 
-    // --- SmashHEAD Logo at Top (50% smaller) ---
-    textAlign(CENTER, CENTER);
-    if (retroFont) textFont(retroFont);
-    else textFont('monospace');
-    push();
-    colorMode(HSB, 360, 100, 100, 100);
-    fill((frameCount) % 360, 90, 100); // Color shifts
-    textSize(40); // Smaller logo size
-    text("SMASH", width / 2, 60);
-    text("HEAD", width / 2, 100);
-    pop();
+  // --- SmashHEAD Logo at Top (50% smaller) ---
+  textAlign(CENTER, CENTER);
+  if (retroFont) textFont(retroFont);
+  else textFont('monospace');
+  push();
+  colorMode(HSB, 360, 100, 100, 100);
+  fill((frameCount) % 360, 90, 100);
+  textSize(40);
+  text("SMASH", width / 2, 60);
+  text("HEAD", width / 2, 100);
+  pop();
 
-// Inside your drawCharacterSelect() after setting textAlign, textLeading
+  // --- How to Play Box ---
+  let instructionY = 160;
+  let instructionWidth = width * 0.65;
+  let hammerScale = 0.8;
+  if (!hammerDisplayWidth || !hammerDisplayHeight) calculateImageSize();
+  let hammerW = (hammerDisplayWidth || 100) * hammerScale;
+  let hammerH = (hammerDisplayHeight || 150) * hammerScale;
+  let totalBlockWidth = instructionWidth + hammerW + 40;
+  let blockStartX = (width - totalBlockWidth) / 2;
+  let imgX = blockStartX + hammerW / 2;
+  let imgY = instructionY + hammerH * 0.6;
+  let textX = imgX + hammerW / 2 + 20;
+  let framePadding = 20;
+  let frameX = blockStartX - framePadding / 2;
+  let frameY = instructionY - framePadding * 1.5;
 
-for (let i = 0; i < instructionsArray.length; i++) {
+  // Instructions as an array of lines
+  const instructionsArray = [
+    "HOW TO PLAY",
+    "",
+    "SmashHead needs your help!",
+    "",
+    "Smack the head with the hammer to bounce around.",
+    "",
+    "Hit all the dots before time runs out.",
+    "",
+    "More smacks = more chaos = more wins."
+  ];
+
+  let instructionSize = 20;
+  let lineSpacing = 25;
+  let estimatedLines = instructionsArray.length;
+  let estTextHeight = estimatedLines * lineSpacing + 30;
+  let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
+  let frameWidth = totalBlockWidth + framePadding;
+
+  // Draw outer frame
+  noFill();
+  stroke(pacManCyan);
+  strokeWeight(4);
+  rect(frameX, frameY, frameWidth, frameHeight);
+  noStroke();
+
+  // Draw subtle background inside frame
+  fill(0, 0, 100, 80);
+  noStroke();
+  let innerPadding = 5;
+  rect(frameX + innerPadding, frameY + innerPadding, frameWidth - 2 * innerPadding, frameHeight - 2 * innerPadding);
+
+  // --- Draw Instructions Text, Line by Line ---
+  textAlign(LEFT, TOP);
+  textLeading(lineSpacing);
+
+  for (let i = 0; i < instructionsArray.length; i++) {
     let line = instructionsArray[i];
     if (line.trim() !== "") {
-        push();
-        colorMode(HSB, 360, 100, 100, 100);
+      push();
+      colorMode(HSB, 360, 100, 100, 100);
 
-        if (i === 0) { // HOW TO PLAY title
-            let pulse = 1 + 0.05 * sin(millis() / 300);
-            textSize(16 * pulse);
-        } else {
-            textSize(16);
-        }
+      // Pulse for HOW TO PLAY only
+      if (i === 0) {
+        let pulse = 1 + 0.05 * sin(millis() / 300);
+        textSize(instructionSize * pulse);
+      } else {
+        textSize(instructionSize);
+      }
 
-        fill((frameCount + i * 20) % 360, 80, 100);
-        text(line, textX, instructionY + i * lineSpacing, instructionWidth);
-        pop();
+      fill((frameCount + i * 20) % 360, 80, 100);
+      text(line, textX, instructionY + i * lineSpacing, instructionWidth);
+      pop();
     }
-}
+  }
 
-    // --- How to Play Box ---
-    let instructionY = 160; // Moved down to fit logo
-    let instructionWidth = width * 0.65;
-    let hammerScale = 0.8;
-    if (!hammerDisplayWidth || !hammerDisplayHeight) calculateImageSize();
-    let hammerW = (hammerDisplayWidth || 100) * hammerScale;
-    let hammerH = (hammerDisplayHeight || 150) * hammerScale;
-    let totalBlockWidth = instructionWidth + hammerW + 40;
-    let blockStartX = (width - totalBlockWidth) / 2;
-    let imgX = blockStartX + hammerW / 2;
-    let imgY = instructionY + hammerH * 0.6;
-    let textX = imgX + hammerW / 2 + 20;
-    let framePadding = 20;
-    let frameX = blockStartX - framePadding / 2;
-    let frameY = instructionY - framePadding * 1.5;
-
-    // Instructions as an array of lines
-    const instructionsArray = [
-      "HOW TO PLAY",
-      "",
-      "SmashHead needs your help!",
-      "",
-      "Smack the head with the hammer to bounce around.",
-      "",
-      "Hit all the dots before time runs out.",
-      "",
-      "More smacks = more chaos = more wins."
-    ];
-
-    let instructionSize = 20;
-    let lineSpacing = 25;
-    let estimatedLines = instructionsArray.length;
-    let estTextHeight = estimatedLines * lineSpacing + 30;
-    let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
-    let frameWidth = totalBlockWidth + framePadding;
-
-    // Draw outer frame
-    noFill();
-    stroke(pacManCyan);
-    strokeWeight(4);
-    rect(frameX, frameY, frameWidth, frameHeight);
-    noStroke();
-
-    // Draw subtle background inside frame
-    fill(0, 0, 100, 80); // Dark semi-transparent blue
-    noStroke();
-    let innerPadding = 5;
-    rect(frameX + innerPadding, frameY + innerPadding, frameWidth - 2 * innerPadding, frameHeight - 2 * innerPadding);
-
-    // Draw Instructions Text, Line by Line with Rainbow Color
-    textAlign(LEFT, TOP);
-    textSize(instructionSize);
-    textLeading(lineSpacing);
-    for (let i = 0; i < instructionsArray.length; i++) {
-        let line = instructionsArray[i];
-        if (line.trim() !== "") {
-            push();
-            colorMode(HSB, 360, 100, 100, 100);
-            fill((frameCount + i * 20) % 360, 80, 100);
-            text(line, textX, instructionY + i * lineSpacing, instructionWidth);
-            pop();
-        }
-    }
-
-    // Draw Hammer Image
-    if (hammerImg && typeof hammerDisplayHeight === 'number') {
-        push();
-        translate(imgX, imgY);
-        rotate(-PI / 6);
-        imageMode(CENTER);
-        image(hammerImg, 0, 0, hammerW, hammerH);
-        pop();
-        imageMode(CENTER);
-    }
-
-    // --- Pick Your Head Section ---
-    let selectY = frameY + frameHeight + 80; // Moved down more
-    let spacing = width / 4;
-    let btnWidth = 80;
-    let headNames = ["Ol' Greenie", "Blurg", "Frank"];
-
-    selectHue = (selectHue + 1.5) % 360;
-    if (retroFont) textFont(retroFont);
-    else textFont('monospace');
-    textAlign(CENTER, CENTER);
-    textSize(26);
-
+  // --- Draw Hammer Image ---
+  if (hammerImg && typeof hammerDisplayHeight === 'number') {
     push();
-    colorMode(HSB, 360, 100, 100, 100);
-    fill(selectHue, 90, 100);
-    text("Pick your head to SMASH!", width / 2, selectY - 50);
+    translate(imgX, imgY);
+    rotate(-PI / 6);
+    imageMode(CENTER);
+    image(hammerImg, 0, 0, hammerW, hammerH);
     pop();
-    colorMode(RGB, 255, 255, 255, 255);
+    imageMode(CENTER);
+  }
 
-    // Draw heads, hover box, and names below
-    textAlign(CENTER, TOP);
-    textSize(16);
-    for (let i = 0; i < 3; i++) {
-        let displayImg = normalHeadImages[i];
-        let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
-        let imgXPos = spacing * (i + 1);
-        let currentHeadHeight = currentSelectHeadSize;
-        let aspect = 1;
-        if (displayImg && displayImg.width > 0) {
-            aspect = displayImg.height / displayImg.width || 1;
-            currentHeadHeight = currentSelectHeadSize * aspect;
-        }
-        // Draw hover box
-        if (i === hoveredHeadIndex) {
-            let boxPadding = 5;
-            let boxW = currentSelectHeadSize + 2 * boxPadding;
-            let boxH = currentHeadHeight + 2 * boxPadding;
-            let boxX = imgXPos - boxW / 2;
-            let boxY = selectY - boxH / 2;
-            stroke(pacManYellow);
-            strokeWeight(3);
-            noFill();
-            rect(boxX, boxY, boxW, boxH);
-            noStroke();
-        }
-        // Draw head image or placeholder
-        if (displayImg && displayImg.width > 0) {
-            image(displayImg, imgXPos, selectY, currentSelectHeadSize, currentHeadHeight);
-        } else {
-            fill(pacManRed);
-            rect(imgXPos - currentSelectHeadSize / 2, selectY - currentSelectHeadSize / 2, currentSelectHeadSize, currentSelectHeadSize);
-        }
-        // Draw Name Below
-        fill(pacManYellow);
-        text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 10);
+  // --- Pick Your Head Section ---
+  let selectY = frameY + frameHeight + 80;
+  let spacing = width / 4;
+  let btnWidth = 80;
+  let headNames = ["Ol' Greenie", "Blurg", "Frank"];
+
+  selectHue = (selectHue + 1.5) % 360;
+  if (retroFont) textFont(retroFont);
+  else textFont('monospace');
+  textAlign(CENTER, CENTER);
+  textSize(26);
+
+  push();
+  colorMode(HSB, 360, 100, 100, 100);
+  fill(selectHue, 90, 100);
+  text("Pick your head to SMASH!", width / 2, selectY - 50);
+  pop();
+  colorMode(RGB, 255, 255, 255, 255);
+
+  // Draw heads, hover box, and names below
+  textAlign(CENTER, TOP);
+  textSize(16);
+  for (let i = 0; i < 3; i++) {
+    let displayImg = normalHeadImages[i];
+    let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
+    let imgXPos = spacing * (i + 1);
+    let currentHeadHeight = currentSelectHeadSize;
+    let aspect = 1;
+    if (displayImg && displayImg.width > 0) {
+      aspect = displayImg.height / displayImg.width || 1;
+      currentHeadHeight = currentSelectHeadSize * aspect;
     }
+    if (i === hoveredHeadIndex) {
+      let boxPadding = 5;
+      let boxW = currentSelectHeadSize + 2 * boxPadding;
+      let boxH = currentHeadHeight + 2 * boxPadding;
+      let boxX = imgXPos - boxW / 2;
+      let boxY = selectY - boxH / 2;
+      stroke(pacManYellow);
+      strokeWeight(3);
+      noFill();
+      rect(boxX, boxY, boxW, boxH);
+      noStroke();
+    }
+    if (displayImg && displayImg.width > 0) {
+      image(displayImg, imgXPos, selectY, currentSelectHeadSize, currentHeadHeight);
+    } else {
+      fill(pacManRed);
+      rect(imgXPos - currentSelectHeadSize / 2, selectY - currentSelectHeadSize / 2, currentSelectHeadSize, currentSelectHeadSize);
+    }
+    fill(pacManYellow);
+    text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 10);
+  }
 }
 
 function drawPlayingState() {
