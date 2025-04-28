@@ -368,23 +368,67 @@ function drawCharacterSelect() {
   }
 
   // --- Pick Your Head Section ---
-let selectY = frameY + frameHeight + 150; // MORE down
-  let spacing = width / 5;
-  let btnWidth = 80;
-  let headNames = ["Ol' Greenie", "Blurg", "Frank"];
+// --- Pick Your Head Section ---
+let selectY = frameY + frameHeight + 150; // Lower position for heads
+let spacing = 180; // Manual spacing between heads (tighter)
+let centerX = width / 2;
+let headNames = ["Ol' Greenie", "Blurg", "Frank"];
 
-  selectHue = (selectHue + 1.5) % 360;
-  if (retroFont) textFont(retroFont);
-  else textFont('monospace');
-  textAlign(CENTER, CENTER);
-  textSize(26);
+selectHue = (selectHue + 1.5) % 360;
+if (retroFont) textFont(retroFont);
+else textFont('monospace');
 
-  push();
-  colorMode(HSB, 360, 100, 100, 100);
-  fill(selectHue, 90, 100);
-  text("Pick your head to SMASH!", width / 2, selectY - 100);
-  pop();
-  colorMode(RGB, 255, 255, 255, 255);
+// First draw the "Pick your head" headline ABOVE
+textAlign(CENTER, CENTER);
+textSize(26);
+push();
+colorMode(HSB, 360, 100, 100, 100);
+fill(selectHue, 90, 100);
+text("Pick your head to SMASH!", centerX, selectY - 80); // 80px above heads
+pop();
+colorMode(RGB, 255, 255, 255, 255);
+
+// Now draw the heads
+textAlign(CENTER, TOP);
+textSize(16);
+for (let i = 0; i < 3; i++) {
+  let displayImg = normalHeadImages[i];
+  let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
+  let imgXPos = centerX + (i - 1) * spacing; // Centered positioning
+  let currentHeadHeight = currentSelectHeadSize;
+  let aspect = 1;
+  
+  if (displayImg && displayImg.width > 0) {
+    aspect = displayImg.height / displayImg.width || 1;
+    currentHeadHeight = currentSelectHeadSize * aspect;
+  }
+  
+  // Hover box
+  if (i === hoveredHeadIndex) {
+    let boxPadding = 5;
+    let boxW = currentSelectHeadSize + 2 * boxPadding;
+    let boxH = currentHeadHeight + 2 * boxPadding;
+    let boxX = imgXPos - boxW / 2;
+    let boxY = selectY - boxH / 2;
+    stroke(pacManYellow);
+    strokeWeight(3);
+    noFill();
+    rect(boxX, boxY, boxW, boxH);
+    noStroke();
+  }
+  
+  // Draw head or placeholder
+  if (displayImg && displayImg.width > 0) {
+    image(displayImg, imgXPos, selectY, currentSelectHeadSize, currentHeadHeight);
+  } else {
+    fill(pacManRed);
+    rect(imgXPos - currentSelectHeadSize / 2, selectY - currentSelectHeadSize / 2, currentSelectHeadSize, currentSelectHeadSize);
+  }
+  
+  // Draw name below
+  fill(pacManYellow);
+  text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 10);
+}
 
   // Draw heads, hover box, and names below
   textAlign(CENTER, TOP);
