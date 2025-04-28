@@ -9,11 +9,11 @@ body {
 
 #credits-counter {
   position: fixed;
-  top: 100px; /* <-- fixed this */
+  top: 200px;
   right: 10px;
-  color: #FFFF00; /* PacMan Yellow */
+  color: #FFFF00;
   font-family: 'Press Start 2P', monospace;
-  font-size: 20px;
+  font-size: 10px;
   opacity: 0.6;
   z-index: 999;
 }
