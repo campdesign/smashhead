@@ -6,35 +6,22 @@
     <title>Retro Bounce Game</title>
 
     <!-- Open Graph and Twitter Card Meta Tags -->
-<meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
-<meta property="og:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
-<meta property="og:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
-<meta property="og:url" content="https://campdesign.github.io/smashhead/">
-<meta property="og:type" content="website">
+    <meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
+    <meta property="og:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
+    <meta property="og:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
+    <meta property="og:url" content="https://campdesign.github.io/smashhead/">
+    <meta property="og:type" content="website">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Play SmashHead! Retro Bounce Arcade Game">
-<meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
-<meta name="twitter:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
-<!-- End Open Graph and Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Play SmashHead! Retro Bounce Arcade Game">
+    <meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
+    <meta name="twitter:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
+    <!-- End Open Graph and Twitter Card Meta Tags -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
-    <style>
-      body { padding: 0; margin: 0; background-color: black; overflow: hidden; }
-      #loading-message {
-        position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: 'Press Start 2P', monospace;
-        color: #FFFF00;
-        font-size: 1.5em;
-        text-shadow: 2px 2px #000;
-        z-index: 10;
-      }
-    </style>
-
     <style>
       body {
         padding: 0;
@@ -43,7 +30,9 @@
         overflow: hidden;
       }
       #loading-message {
-        position: absolute; top: 50%; left: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
         transform: translate(-50%, -50%);
         font-family: 'Press Start 2P', monospace;
         color: #FFFF00;
@@ -52,25 +41,25 @@
         z-index: 10;
         animation: flash 1.2s linear infinite;
       }
-      <style>
-#visitor-counter {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  opacity: 0.4;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  z-index: 999;
-}
-#visitor-counter:hover {
-  opacity: 1;
-}
-</style>
-      
-
       @keyframes flash {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
+      }
+
+      /* --- Credits counter style --- */
+      #credits-counter {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: none;
+        color: #FFFF00; /* PacMan Yellow */
+        font-family: 'Press Start 2P', monospace;
+        font-size: 10px;
+        opacity: 0.6;
+        z-index: 999;
+      }
+      #credits-counter:hover {
+        opacity: 1;
       }
     </style>
 
@@ -78,10 +67,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
     <script src="sketch.js"></script>
   </head>
-<div id="visitor-counter">
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=campdesign.smashhead" alt="Visitors" />
-</div>
+
   <body>
     <div id="loading-message">Loading...</div>
+
+    <!-- Credits Counter -->
+    <div id="credits-counter">
+      CREDITS: <span id="visitor-count">...</span>
+    </div>
+
+    <script>
+      fetch('https://api.countapi.xyz/hit/campdesign.smashhead/visits')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('visitor-count').innerText = data.value;
+        })
+        .catch(err => {
+          console.error('Visitor count fetch failed:', err);
+          document.getElementById('visitor-count').innerText = '???';
+        });
+    </script>
   </body>
 </html>
