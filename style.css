@@ -6,16 +6,34 @@ body {
   color: white;
   font-family: 'Press Start 2P', monospace;
 }
+
 #credits-counter {
   position: fixed;
   bottom: 200px;
   right: 10px;
-  ...
+  color: #FFFF00; /* PacMan Yellow */
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  opacity: 0.6;
+  z-index: 999;
 }
+
+#credits-counter:hover {
+  opacity: 1;
+}
+
 #loading-message {
   position: absolute;
-a  left: 50%;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   font-size: 18px;
   color: white;
+  font-family: 'Press Start 2P', monospace;
+  animation: flash 1.2s linear infinite;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
