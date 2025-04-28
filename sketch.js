@@ -1920,7 +1920,7 @@ function mouseMoved() {
 
 
 // --- Handle Window Resizing ---
-function windowResized() {
+function windowResized() { // <--- Opening brace for function
     resizeCanvas(windowWidth, windowHeight); // Adjust canvas size
     createScanlinesGraphic();                // Regenerate scanlines for new size
 
@@ -1928,7 +1928,7 @@ function windowResized() {
     calculateImageSize(); // Recalculate head and hammer sizes
 
     // Update positions/boundaries that depend on width/height
-    if (gameState === 'playing' || gameState === 'fadingOut') {
+    if (gameState === 'playing' || gameState === 'fadingOut') { // <--- Opening brace for if
         // Constrain face position within new bounds if necessary
         let halfW = imgWidth / 2;
         let halfH = imgHeight / 2;
@@ -1936,32 +1936,31 @@ function windowResized() {
         y = constrain(y, halfH, height - halfH);
          // Optionally: Could reposition bumpers slightly if they go off-screen,
          // but generally letting them stay might be simpler.
-    } else if (gameState === 'gameOver') {
+    } else if (gameState === 'gameOver') { // <--- Opening brace for else if
         // Recalculate game over bounce boundaries and potentially reposition image
         gameOverBounceTop = height * 0.15;
         gameOverBounceBottom = height * 0.45;
         calculateGameOverImageSizeAndPosition(); // Recalculate size and reset position/velocity
         // Ensure Y position is still within new bounds
-         if (typeof gameOverY === 'number' && typeof gameOverImgHeight === 'number') {
+         if (typeof gameOverY === 'number' && typeof gameOverImgHeight === 'number') { // <--- Opening brace for inner if
             gameOverY = constrain(gameOverY, gameOverBounceTop + gameOverImgHeight / 2, gameOverBounceBottom - gameOverImgHeight / 2);
-         }
-    } else if (gameState === 'gameOverTime') {
+         } // <--- Closing brace for inner if
+    } else if (gameState === 'gameOverTime') { // <--- Opening brace for else if
          // Image size is recalculated by calculateImageSize() above. Static position.
-    } else if (gameState === 'titleScreen') {
+    } else if (gameState === 'titleScreen') { // <--- Opening brace for else if
         // Reinitialize title screen elements for new layout
         initializeTitleScreenState();
-    } else if (gameState === 'characterSelect') {
+    } else if (gameState === 'characterSelect') { // <--- Opening brace for else if
         // Layout is recalculated dynamically in drawCharacterSelect/drawHowToPlay/drawHeadSelect
         // No specific repositioning needed here, but recalculateImageSize() updated selectHeadSize.
-    }
+    } // <--- !!! ADDED THIS CLOSING BRACE !!!
 
     // Reposition fixed UI elements like the mute button
-    if (muteButton) {
+    if (muteButton) { // <--- Opening brace for if
         muteButton.position(20, height - 40);
-    }
+    } // <--- Closing brace for if
     print(`Window resized to ${windowWidth}x${windowHeight}`);
-}
-
+} // <--- Closing brace for function
 
 // --- Select Head Function (Called by mousePressed) ---
 function selectHead(index) { // Index is 0, 1, or 2
