@@ -783,4 +783,14 @@ function updateAndDrawEffects() {
       pop();
     }
   }
+  function createScanlinesGraphic() {
+  scanlines = createGraphics(windowWidth, windowHeight);
+  scanlines.pixelDensity(1);
+  scanlines.stroke(0, 35); // Black lines, semi-transparent
+  scanlines.strokeWeight(1);
+
+  for (let i = 0; i < windowHeight; i += 3) {
+    scanlines.line(0, i, windowWidth, i);
+  }
+}
 }
