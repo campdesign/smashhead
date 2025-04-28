@@ -368,8 +368,8 @@ function drawCharacterSelect() {
   }
 
   // --- Pick Your Head Section ---
-  let selectY = frameY + frameHeight + 80;
-  let spacing = width / 4;
+let selectY = frameY + frameHeight + 150; // MORE down
+  let spacing = width / 5;
   let btnWidth = 80;
   let headNames = ["Ol' Greenie", "Blurg", "Frank"];
 
