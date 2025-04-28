@@ -312,8 +312,8 @@ function drawCharacterSelect() {
       "More smacks = more chaos = more wins."
     ];
 
-    let instructionSize = 20;
-    let lineSpacing = 20;
+    let instructionSize = 30;
+    let lineSpacing = 10;
     let estimatedLines = instructionsArray.length;
     let estTextHeight = estimatedLines * lineSpacing + 30;
     let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
