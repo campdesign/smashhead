@@ -389,8 +389,6 @@ pop();
 colorMode(RGB, 255, 255, 255, 255);
 
 // Now draw the heads
-textAlign(CENTER, TOP);
-textSize(16);
 for (let i = 0; i < 3; i++) {
   let displayImg = normalHeadImages[i];
   let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
@@ -423,6 +421,21 @@ for (let i = 0; i < 3; i++) {
     rect(0, 0, currentSelectHeadSize, currentSelectHeadSize);
   }
   pop();
+
+  // Draw hover box (optional: looks fine without if bouncing nicely)
+  if (i === hoveredHeadIndex) {
+    stroke(pacManYellow);
+    strokeWeight(2);
+    noFill();
+    rect(imgXPos - currentSelectHeadSize/2, selectY - currentHeadHeight/2, currentSelectHeadSize, currentHeadHeight);
+    noStroke();
+  }
+
+  // Draw name below
+  fill(pacManYellow);
+  textAlign(CENTER, TOP);
+  text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
+}
 
   // Draw hover box (optional: looks fine without if bouncing nicely)
   if (i === hoveredHeadIndex) {
