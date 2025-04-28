@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Bounce Game</title>
+    <title>Play SmashHead! Retro Bounce Arcade Game</title>
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.png" type="image/png">
@@ -19,12 +19,13 @@
     <meta name="twitter:title" content="Play SmashHead! Retro Bounce Arcade Game">
     <meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
     <meta name="twitter:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
-    <!-- End Open Graph and Twitter Card Meta Tags -->
 
+    <!-- Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
+    <!-- Styles -->
     <style>
       body {
         margin: 0;
@@ -34,7 +35,6 @@
         color: white;
         font-family: 'Press Start 2P', monospace;
       }
-
       #loading-message {
         position: absolute;
         top: 50%;
@@ -46,12 +46,10 @@
         animation: flash 1.2s linear infinite;
         z-index: 10;
       }
-
       @keyframes flash {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
       }
-
       #credits-counter {
         position: fixed;
         bottom: 200px;
@@ -62,22 +60,12 @@
         opacity: 0.6;
         z-index: 999;
       }
-<script>
-  fetch('https://api.countapi.xyz/hit/campdesign.smashhead/visits')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('visitor-count').innerText = data.value;
-    })
-    .catch(err => {
-      console.error('Visitor count fetch failed:', err);
-      document.getElementById('visitor-count').innerText = '???';
-    });
-</script> 
       #credits-counter:hover {
         opacity: 1;
       }
     </style>
 
+    <!-- p5.js libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
     <script src="sketch.js"></script>
