@@ -382,7 +382,7 @@ let selectY = frameY + frameHeight + 150; // MORE down
   push();
   colorMode(HSB, 360, 100, 100, 100);
   fill(selectHue, 90, 100);
-  text("Pick your head to SMASH!", width / 2, selectY - 50);
+  text("Pick your head to SMASH!", width / 2, selectY - 100);
   pop();
   colorMode(RGB, 255, 255, 255, 255);
 
