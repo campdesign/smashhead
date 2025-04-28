@@ -803,4 +803,4 @@ function updateAndDrawEffects() {
     scanlines.line(0, i, windowWidth, i);
   }
 }
-}
+
