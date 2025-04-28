@@ -62,7 +62,17 @@
         opacity: 0.6;
         z-index: 999;
       }
-
+<script>
+  fetch('https://api.countapi.xyz/hit/campdesign.smashhead/visits')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('visitor-count').innerText = data.value;
+    })
+    .catch(err => {
+      console.error('Visitor count fetch failed:', err);
+      document.getElementById('visitor-count').innerText = '???';
+    });
+</script> 
       #credits-counter:hover {
         opacity: 1;
       }
