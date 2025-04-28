@@ -167,40 +167,8 @@ function preload() {
     currentImage = normalHeadImages[0]; // Assign tentatively
 
     print("--- Preload Finished ---");
-}
+} // End preload()
 
-// --- Setup ---
-function setup() {
-    print("--- Setup Starting ---");
-    // Remove loading message if it exists
-    let loadingMsg = select('#loading-message');
-    if (loadingMsg) loadingMsg.remove();
-
-    createCanvas(windowWidth, windowHeight);
-    pixelDensity(1); // Ensure graphics buffer matches display density
-    colorMode(RGB, 255, 255, 255, 255);
-    imageMode(CENTER);
-    textAlign(LEFT, TOP); // Default alignment
-
-    // Define Pac-Man Colors
-    pacManBlack = color(0);
-    pacManBlue = color(33, 33, 255);
-    pacManYellow = color(255, 255, 0);
-    pacManPink = color(255, 184, 255);
-    pacManCyan = color(0, 255, 255);
-    pacManOrange = color(255, 184, 82);
-    pacManRed = color(255, 0, 0);
-    ghostColors = [pacManPink, pacManCyan, pacManOrange, pacManRed, pacManBlue];
-
-    // Initialize hammer angles
-    hammerAngle = hammerRestAngle;
-    hammerTargetAngle = hammerRestAngle;
-
-    // Calculate initial image sizes based on preloaded assets (or defaults)
-    calculateImageSize(); // Use default head 0 for initial calc
-
-    // Create Scanlines Effect Graphic
-    createScanlinesGraphic();
 // --- Setup ---
 function setup() {
     print("--- Setup Starting ---");
@@ -474,7 +442,7 @@ function drawTitleScreen() {
         textSize(pressKeySize);
         text("PRESS ANY KEY TO CHOOSE HEAD", width / 2, pressKeyY);
     }
-}
+} // End drawTitleScreen()
 
 // ============================
 // --- DRAW CHARACTER SELECT ---
@@ -507,7 +475,7 @@ function drawCharacterSelect() {
 
     // --- Draw Head Selection Area ---
     drawHeadSelect(); // Encapsulated drawing logic
-}
+} // End drawCharacterSelect()
 
 // ============================
 // --- Draw How to Play Section ---
@@ -607,7 +575,7 @@ function drawHowToPlay() {
         pop();
         imageMode(CENTER); // Reset imageMode just in case
     }
-}
+} // End drawHowToPlay()
 
 
 // ============================
@@ -619,7 +587,8 @@ function drawHeadSelect() {
     // This requires frameY and frameHeight to be accessible or recalculated/passed
     // For simplicity, let's use a fixed offset based on typical frame height.
     // A more robust solution would involve passing layout info.
-    let howToPlayBottomApprox = 160 + 200; // Approx bottom of how-to-play box
+    // Estimate bottom of how-to-play (needs refinement if layout changes drastically)
+    let howToPlayBottomApprox = 160 + max( (hammerDisplayHeight || 150) * 0.8 + (160 + (hammerDisplayHeight || 150)*0.8 * 0.6 - 160) + 20, (8 * 25 + 30)) + 20 * 2;
     let selectY = howToPlayBottomApprox + 80; // Y position for the row of heads
     let spacing = width / 4; // Horizontal spacing between heads
 
@@ -701,7 +670,7 @@ function drawHeadSelect() {
     }
      imageMode(CENTER); // Reset just in case
      rectMode(CORNER); // Reset just in case
-}
+} // End drawHeadSelect()
 
 
 // ============================
@@ -749,7 +718,7 @@ function drawPlayingState() {
     } else if (gameState === 'fadingOut') {
         handleFadingOut(); // Draw fade overlay and transition to win screen
     }
-}
+} // End drawPlayingState()
 
 // --- Hammer Update Logic ---
 function updateHammer() {
@@ -812,7 +781,7 @@ function updateHammer() {
         imageMode(CENTER); // Reset imageMode
         pop();
     }
-}
+} // End updateHammer()
 
 // --- Draw Bouncing Face Logic ---
 function drawBouncingFace() {
@@ -857,8 +826,8 @@ function drawBouncingFace() {
         }
 
         // --- Bumper Collisions ---
-        checkBumperCollisions(); // Encapsulated logic returns true if a bumper bounce happened
-        if (checkBumperCollisions()) {
+        // checkBumperCollisions(); // Encapsulated logic returns true if a bumper bounce happened
+        if (checkBumperCollisions()) { // Call and check return value
              bounced = true;
         }
 
@@ -906,11 +875,15 @@ function drawBouncingFace() {
         textSize(16);
         text("ERROR: Gameplay Images not ready!", width / 2, height / 2);
     }
-}
+} // End drawBouncingFace()
 
 // --- Bumper Collision Logic ---
 function checkBumperCollisions() {
     let bumperCollisionOccurred = false;
+    // Ensure image dimensions are valid before calculating radius
+    if (typeof imgWidth !== 'number' || typeof imgHeight !== 'number') {
+        return false; // Cannot check collisions without image size
+    }
     let approxImgRadius = min(imgWidth / 2, imgHeight / 2); // Approximate radius for collision
 
     for (let b of bumpers) {
@@ -952,12 +925,7 @@ function checkBumperCollisions() {
             let dy_n = (y - b.y) / d;
 
             // Reflect velocity (simple axis-aligned approximation for now)
-            // More accurate reflection would use the normal vector dx_n, dy_n
-            // dot_product = vx * dx_n + vy * dy_n
-            // vx = vx - 2 * dot_product * dx_n
-            // vy = vy - 2 * dot_product * dy_n
-            // --- Simplified bounce (reflect dominant axis) ---
-             let ovx=vx; let ovy=vy;
+            let ovx=vx; let ovy=vy;
              if(abs(x - b.x) > abs(y - b.y)){ // More horizontal collision
                  vx *= -1;
                  angularVelocity = spinAmount * Math.sign(ovy || 1);
@@ -994,7 +962,7 @@ function checkBumperCollisions() {
         }
     }
     return bumperCollisionOccurred;
-}
+} // End checkBumperCollisions()
 
 
 // --- Draw HUD (Score/Timer) ---
@@ -1045,7 +1013,7 @@ function drawGameHUD() {
         rect(timerBarX, timerBarY, timerBarWidth, timerBarHeight);
         noStroke(); // Reset stroke
     }
-}
+} // End drawGameHUD()
 
 // --- Handle Timer Countdown and Win Condition Check ---
 function handleTimerCountdown() {
@@ -1071,7 +1039,7 @@ function handleTimerCountdown() {
             gameOverStartTimeFrame = frameCount; // Record frame when fading starts
         }
     }
-}
+} // End handleTimerCountdown()
 
 // --- Handle Fading Out (Transition to Win Screen) ---
 function handleFadingOut() {
@@ -1099,7 +1067,7 @@ function handleFadingOut() {
              currentAttributionText = '';
         }
     }
-}
+} // End handleFadingOut()
 
 // ============================
 // --- GAME OVER (WIN) STATE ---
@@ -1128,7 +1096,7 @@ function drawGameOverWin() {
     // Note: updateAndDrawParticles() is called in the main draw loop
 
     // --- Draw Winning Head Bouncing ---
-    if (imgNormal && typeof gameOverY === 'number') { // Ensure image and position are valid
+    if (imgNormal && typeof gameOverY === 'number' && typeof gameOverImgHeight === 'number' && gameOverImgHeight > 0) { // Ensure image and position are valid
         // Update vertical position and velocity for bounce
         gameOverY += gameOverVY;
         let halfGameOverH = gameOverImgHeight / 2;
@@ -1144,7 +1112,7 @@ function drawGameOverWin() {
 
         // Draw the bouncing image (using the last selected normal head)
         image(imgNormal, width / 2, gameOverY, gameOverImgWidth, gameOverImgHeight);
-    } else if (imgNormal) {
+    } else if (imgNormal && typeof imgWidth === 'number' && typeof imgHeight === 'number') { // Check if base dimensions are valid
         // Fallback if bounce variables aren't ready: draw statically
         image(imgNormal, width / 2, height * 0.3, imgWidth * 1.2, imgHeight * 1.2); // Slightly larger
     }
@@ -1171,7 +1139,7 @@ function drawGameOverWin() {
     fill(pacManYellow); // Back to yellow
     textSize(14);
     text("(Press any key to restart)", width / 2, textY + 120);
-}
+} // End drawGameOverWin()
 
 // ============================
 // --- GAME OVER (TIME OUT) STATE ---
@@ -1208,7 +1176,7 @@ function drawGameOverTime() {
     fill(pacManYellow); // Yellow for prompt
     textSize(14);
     text("(Press any key to restart)", width / 2, textY + 110);
-}
+} // End drawGameOverTime()
 
 
 // ============================
@@ -1228,7 +1196,7 @@ function createScanlinesGraphic() {
         scanlines.line(0, i, windowWidth, i);
     }
     print("Scanlines graphic created/updated.");
-}
+} // End createScanlinesGraphic()
 
 // --- Reset Common State Variables ---
 // Used when starting a new game or restarting the sketch
@@ -1251,12 +1219,12 @@ function resetOtherStates() {
     comboCount = 0;             // Reset combo counter
     resetImageState();          // Reset bouncing face position/velocity
     console.log("Common game states reset.");
-}
+} // End resetOtherStates()
 
 // --- Initialize Title Screen Specific Values ---
 function initializeTitleScreenState() {
     // Ensure image dimensions are available for calculations
-    if (typeof imgWidth !== 'number' || !imgWidth) {
+    if (typeof imgWidth !== 'number' || !imgWidth || imgWidth <= 0) { // Check for valid width
         calculateImageSize(); // Calculate size if needed
     }
     // Define boundaries for the sweeping animation
@@ -1281,7 +1249,7 @@ function initializeTitleScreenState() {
 
     currentAttributionText = titleAttribution; // Set correct music credit
     console.log("Title Screen State Initialized.");
-}
+} // End initializeTitleScreenState()
 
 // --- Create Initial Set of Bumpers for Gameplay ---
 function createInitialBumpers() {
@@ -1321,7 +1289,7 @@ function createInitialBumpers() {
         console.warn(`Could only place ${bumpers.length}/${numInitialBumpers} bumpers without overlap.`);
     }
     console.log(`Created ${bumpers.length} gameplay bumpers.`);
-}
+} // End createInitialBumpers()
 
 
 // --- Calculate Image/Hammer Sizes Based on Window Size ---
@@ -1349,7 +1317,7 @@ function calculateImageSize() {
         }
     } else {
         // Fallback if no valid image is available
-        if (!imgWidth) { // Only set default if not already set
+        if (!imgWidth || imgWidth <= 0) { // Only set default if not already set or invalid
              imgWidth = 100;
              imgHeight = 100;
              console.warn("No valid base image for size calculation, using default 100x100.");
@@ -1369,8 +1337,14 @@ function calculateImageSize() {
     // Calculate head size for the character select screen (slightly smaller)
     selectHeadSize = imgWidth * 0.9;
 
-    console.log(`Calculated image size: ${imgWidth.toFixed(1)}x${imgHeight.toFixed(1)}, Hammer: ${hammerDisplayWidth.toFixed(1)}x${hammerDisplayHeight.toFixed(1)}, Select: ${selectHeadSize.toFixed(1)}`);
-}
+    // Added check to prevent NaN or zero values which cause issues later
+    if (!hammerDisplayWidth || hammerDisplayWidth <= 0) hammerDisplayWidth = 100;
+    if (!hammerDisplayHeight || hammerDisplayHeight <= 0) hammerDisplayHeight = 150;
+    if (!selectHeadSize || selectHeadSize <= 0) selectHeadSize = 90;
+
+
+    console.log(`Calculated image size: ${imgWidth?.toFixed(1)}x${imgHeight?.toFixed(1)}, Hammer: ${hammerDisplayWidth?.toFixed(1)}x${hammerDisplayHeight?.toFixed(1)}, Select: ${selectHeadSize?.toFixed(1)}`);
+} // End calculateImageSize()
 
 
 // --- Reset Bouncing Image Position and Velocity ---
@@ -1392,14 +1366,14 @@ function resetImageState() {
     // Randomize initial direction
     if (random() > 0.5) vx *= -1;
     if (random() > 0.5) vy *= -1;
-}
+} // End resetImageState()
 
 // --- Trigger Screen Shake Effect ---
 function triggerShake(amount, durationMs) {
     shakeAmount = amount;
     shakeDuration = durationMs;
     shakeStartTime = millis(); // Record start time
-}
+} // End triggerShake()
 
 // --- Check and Save High Score to Local Storage ---
 function checkAndSaveHighScore() {
@@ -1412,7 +1386,7 @@ function checkAndSaveHighScore() {
             console.error("Failed to save high score to localStorage:", e);
         }
     }
-}
+} // End checkAndSaveHighScore()
 
 // --- Draw Attribution Text (Music Credit, Mute Status) ---
 function drawAttributionText() {
@@ -1424,7 +1398,7 @@ function drawAttributionText() {
     fill(180); // Light grey color
     text(muteText + currentAttributionText, width - 10, height - 10); // Draw text
     pop(); // Restore previous text settings
-}
+} // End drawAttributionText()
 
 // --- Draw and Update Particles (Trails, Impacts, Confetti) ---
 function updateAndDrawParticles() {
@@ -1436,7 +1410,7 @@ function updateAndDrawParticles() {
         p.y += p.vy;
         p.lifespan -= 1;     // Decrease lifespan
         p.size *= 0.98;     // Shrink particle over time (can be adjusted)
-         if (p.isConfetti) { // Apply rotation to confetti
+         if (p.isConfetti) { // Apply rotation and gravity to confetti
              p.angle = (p.angle || 0) + (p.rotationSpeed || 0);
              p.vy += 0.05; // Simple gravity for confetti
          }
@@ -1466,7 +1440,7 @@ function updateAndDrawParticles() {
             }
         }
     }
-}
+} // End updateAndDrawParticles()
 
 
 // --- Draw and Update Floating Text Effects (Combos) ---
@@ -1497,14 +1471,14 @@ function updateAndDrawEffects() {
             pop();
         }
     }
-}
+} // End updateAndDrawEffects()
 
 // --- Hammer Hit Detection Logic ---
 // Checks collision between hammer head and bouncing face
 function checkHammerHit() {
     // Ensure required variables are valid numbers/objects
     if (!imgNormal || !currentImage || typeof x !== 'number' || typeof y !== 'number' ||
-        typeof hammerStrikeAngle !== 'number' || typeof hammerDisplayWidth !== 'number' || !hammerImg) {
+        typeof hammerStrikeAngle !== 'number' || typeof hammerDisplayWidth !== 'number' || !hammerImg || hammerDisplayWidth <= 0) { // Added check for hammerDisplayWidth > 0
         console.warn("checkHammerHit called with invalid data.");
         return;
     }
@@ -1596,7 +1570,7 @@ function checkHammerHit() {
         // Note: The logic to potentially add a bumper on miss is handled
         // at the end of the hammer swing animation in updateHammer()
     }
-}
+} // End checkHammerHit()
 
 // --- Toggle Mute State ---
 function toggleMute() {
@@ -1643,7 +1617,7 @@ function toggleMute() {
              else if(gameState === 'gameOver' || gameState === 'gameOverTime') currentAttributionText = gameOverAttribution;
          }
     }
-}
+} // End toggleMute()
 
 // --- Transition from Title to Character Select ---
 function goToCharacterSelect() {
@@ -1664,7 +1638,7 @@ function goToCharacterSelect() {
         currentAttributionText = ''; // Clear if muted
     }
     gameState = 'characterSelect'; // Change state
-}
+} // End goToCharacterSelect()
 
 // --- Start the Game (from Character Select) ---
 function startGame() {
@@ -1687,7 +1661,7 @@ function startGame() {
 
     // --- Set Correct Images for Chosen Head ---
     // Ensure both normal and hit images for the selected index are loaded
-    if (normalHeadImages[chosenHeadIndex] && hitHeadImages[chosenHeadIndex]) {
+    if (normalHeadImages[chosenHeadIndex] && hitHeadImages[chosenHeadIndex] && normalHeadImages[chosenHeadIndex].width > 0 && hitHeadImages[chosenHeadIndex].width > 0) {
         imgNormal = normalHeadImages[chosenHeadIndex];
         imgHit = hitHeadImages[chosenHeadIndex];
         currentImage = imgNormal; // Start with the normal image
@@ -1722,7 +1696,7 @@ function startGame() {
     // Change game state to playing
     gameState = 'playing';
     console.log("Game Started.");
-}
+} // End startGame()
 
 
 // --- Change State to Game Over (Time Out) ---
@@ -1748,7 +1722,7 @@ function changeStateToGameOverTime() {
     } else {
         currentAttributionText = ''; // Clear if muted
     }
-}
+} // End changeStateToGameOverTime()
 
 // --- Restart the Entire Sketch (Back to Title Screen) ---
 function restartSketch() {
@@ -1790,7 +1764,7 @@ function restartSketch() {
     gameState = 'titleScreen';
     // Music will restart automatically when drawTitleScreen runs (if not muted)
     console.log("Sketch reset to Title Screen.");
-}
+} // End restartSketch()
 
 // --- Calculate Size and Position for Bouncing Image on Win Screen ---
 function calculateGameOverImageSizeAndPosition() {
@@ -1808,7 +1782,10 @@ function calculateGameOverImageSizeAndPosition() {
     let maxWidthGameOver = maxImageWidth * 1.2; // Cap size increase
     gameOverImgWidth = min(imgWidth * 1.2, maxWidthGameOver);
     // Maintain aspect ratio based on the new width
-    let scaleRatio = gameOverImgWidth / (imgWidth * 1.2 || 1); // Avoid division by zero
+    let scaleRatio = 1.0; // Default scale ratio
+    if (imgWidth && imgWidth > 0) { // Avoid division by zero if imgWidth is invalid
+        scaleRatio = gameOverImgWidth / (imgWidth * 1.2);
+    }
     gameOverImgHeight = imgHeight * 1.2 * scaleRatio;
 
 
@@ -1824,7 +1801,7 @@ function calculateGameOverImageSizeAndPosition() {
     gameOverVY = -gameOverBounceSpeed; // Start moving upwards
 
     console.log("Initialized Game Over image bounce (Win).");
-}
+} // End calculateGameOverImageSizeAndPosition()
 
 // --- Input Handlers ---
 
@@ -1855,7 +1832,9 @@ function mousePressed() {
     } else if (gameState === 'characterSelect') {
         // --- Handle Head Selection Click ---
         // Use layout variables from drawHeadSelect for consistency
-         let selectY = howToPlayBottomApprox + 80; // Recalculate or use stored value
+        // Estimate bottom of how-to-play (needs refinement if layout changes drastically)
+         let howToPlayBottomApprox = 160 + max( (hammerDisplayHeight || 150) * 0.8 + (160 + (hammerDisplayHeight || 150)*0.8 * 0.6 - 160) + 20, (8 * 25 + 30)) + 20 * 2;
+         let selectY = howToPlayBottomApprox + 80; // Y position for the row of heads
          let spacing = width / 4;
          let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
 
@@ -1885,7 +1864,7 @@ function mousePressed() {
         }
     }
      // Clicks in other states (title, game over) are handled by keyPressed
-}
+} // End mousePressed()
 
 function keyPressed() {
     userStartAudio(); // Ensure audio context is running
@@ -1904,14 +1883,16 @@ function keyPressed() {
     }
      // No specific key actions needed for 'playing' or 'characterSelect' here
      // (handled by mouse or state transitions)
-}
+} // End keyPressed()
 
 function mouseMoved() {
     // --- Handle Hover Effect on Character Select Screen ---
     if (gameState === 'characterSelect') {
         let currentHover = -1; // Assume no hover initially
          // Use same layout calculations as drawHeadSelect and mousePressed
-         let selectY = howToPlayBottomApprox + 80;
+         // Estimate bottom of how-to-play (needs refinement if layout changes drastically)
+         let howToPlayBottomApprox = 160 + max( (hammerDisplayHeight || 150) * 0.8 + (160 + (hammerDisplayHeight || 150)*0.8 * 0.6 - 160) + 20, (8 * 25 + 30)) + 20 * 2;
+         let selectY = howToPlayBottomApprox + 80; // Y position for the row of heads
          let spacing = width / 4;
          let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
 
@@ -1952,11 +1933,11 @@ function mouseMoved() {
         hoveredHeadIndex = -1;
         previousHoverIndex = -1;
     }
-}
+} // End mouseMoved()
 
 
 // --- Handle Window Resizing ---
-function windowResized() { // <--- Opening brace for function
+function windowResized() {
     resizeCanvas(windowWidth, windowHeight); // Adjust canvas size
     createScanlinesGraphic();                // Regenerate scanlines for new size
 
@@ -1964,39 +1945,43 @@ function windowResized() { // <--- Opening brace for function
     calculateImageSize(); // Recalculate head and hammer sizes
 
     // Update positions/boundaries that depend on width/height
-    if (gameState === 'playing' || gameState === 'fadingOut') { // <--- Opening brace for if
+    if (gameState === 'playing' || gameState === 'fadingOut') {
         // Constrain face position within new bounds if necessary
-        let halfW = imgWidth / 2;
-        let halfH = imgHeight / 2;
-        x = constrain(x, halfW, width - halfW);
-        y = constrain(y, halfH, height - halfH);
+        // Ensure imgWidth/Height are valid before calculating half values
+        if (typeof imgWidth === 'number' && typeof imgHeight === 'number') {
+            let halfW = imgWidth / 2;
+            let halfH = imgHeight / 2;
+            x = constrain(x, halfW, width - halfW);
+            y = constrain(y, halfH, height - halfH);
+        }
          // Optionally: Could reposition bumpers slightly if they go off-screen,
          // but generally letting them stay might be simpler.
-    } else if (gameState === 'gameOver') { // <--- Opening brace for else if
+    } else if (gameState === 'gameOver') {
         // Recalculate game over bounce boundaries and potentially reposition image
         gameOverBounceTop = height * 0.15;
         gameOverBounceBottom = height * 0.45;
         calculateGameOverImageSizeAndPosition(); // Recalculate size and reset position/velocity
         // Ensure Y position is still within new bounds
-         if (typeof gameOverY === 'number' && typeof gameOverImgHeight === 'number') { // <--- Opening brace for inner if
+         if (typeof gameOverY === 'number' && typeof gameOverImgHeight === 'number') {
             gameOverY = constrain(gameOverY, gameOverBounceTop + gameOverImgHeight / 2, gameOverBounceBottom - gameOverImgHeight / 2);
-         } // <--- Closing brace for inner if
-    } else if (gameState === 'gameOverTime') { // <--- Opening brace for else if
+         }
+    } else if (gameState === 'gameOverTime') {
          // Image size is recalculated by calculateImageSize() above. Static position.
-    } else if (gameState === 'titleScreen') { // <--- Opening brace for else if
+    } else if (gameState === 'titleScreen') {
         // Reinitialize title screen elements for new layout
         initializeTitleScreenState();
-    } else if (gameState === 'characterSelect') { // <--- Opening brace for else if
+    } else if (gameState === 'characterSelect') {
         // Layout is recalculated dynamically in drawCharacterSelect/drawHowToPlay/drawHeadSelect
         // No specific repositioning needed here, but recalculateImageSize() updated selectHeadSize.
-    } // <--- !!! ADDED THIS CLOSING BRACE !!!
+    } // <-- This closing brace matches the 'if (gameState...' opening brace
 
     // Reposition fixed UI elements like the mute button
-    if (muteButton) { // <--- Opening brace for if
+    if (muteButton) {
         muteButton.position(20, height - 40);
-    } // <--- Closing brace for if
+    }
     print(`Window resized to ${windowWidth}x${windowHeight}`);
-} // <--- Closing brace for function
+} // End windowResized()
+
 
 // --- Select Head Function (Called by mousePressed) ---
 function selectHead(index) { // Index is 0, 1, or 2
@@ -2030,7 +2015,7 @@ function selectHead(index) { // Index is 0, 1, or 2
              currentAttributionText = selectAttribution;
          }
     }
-}
+} // End selectHead()
 
 // --- Ensure Audio Context is Running ---
 // Call this on first user interaction (mousePressed/keyPressed)
@@ -2042,4 +2027,8 @@ function userStartAudio() {
             console.error("AudioContext resume failed:", e);
         });
     }
-}
+} // End userStartAudio()
+
+// --- Final Check ---
+// Make sure there isn't an extra closing brace accidentally added somewhere
+// Or a missing one at the very end of the file (though the error points to line 2046 specifically)
