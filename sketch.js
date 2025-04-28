@@ -1282,7 +1282,7 @@ function createInitialBumpers() {
     }
 
     if (bumpers.length < numInitialBumpers) {
-        console.warn(`Could only place <span class="math-inline">\{bumpers\.length\}/</span>{numInitialBumpers} bumpers without overlap.`);
+        console.warn(`Could only place ${bumpers.length}/${numInitialBumpers} bumpers without overlap.`);
     }
     console.log(`Created ${bumpers.length} gameplay bumpers.`);
 }
@@ -1333,7 +1333,7 @@ function calculateImageSize() {
     // Calculate head size for the character select screen (slightly smaller)
     selectHeadSize = imgWidth * 0.9;
 
-    console.log(`Calculated image size: <span class="math-inline">\{imgWidth\.toFixed\(1\)\}x</span>{imgHeight.toFixed(1)}, Hammer: <span class="math-inline">\{hammerDisplayWidth\.toFixed\(1\)\}x</span>{hammerDisplayHeight.toFixed(1)}, Select: ${selectHeadSize.toFixed(1)}`);
+    console.log(`Calculated image size: ${imgWidth.toFixed(1)}x${imgHeight.toFixed(1)}, Hammer: ${hammerDisplayWidth.toFixed(1)}x${hammerDisplayHeight.toFixed(1)}, Select: ${selectHeadSize.toFixed(1)}`);
 }
 
 
@@ -1557,3 +1557,454 @@ function checkHammerHit() {
         hammerLandedHit = false; // Flag that face was missed
         // Play "fart" sound on miss if loaded and not muted
         if (!isMuted && fartSound?.isLoaded()) fartSound.play();
+        // Note: The logic to potentially add a bumper on miss is handled
+        // at the end of the hammer swing animation in updateHammer()
+    }
+}
+
+// --- Toggle Mute State ---
+function toggleMute() {
+    isMuted = !isMuted;
+    if (muteButton) { // Update button text
+        muteButton.html(isMuted ? 'Unmute' : 'Mute');
+    }
+
+    if (isMuted) {
+        // Stop all currently playing music tracks
+        if (musicPlaying?.isPlaying()) musicPlaying.stop();
+        if (musicSelect?.isPlaying()) musicSelect.stop();
+        if (musicGameplay?.isPlaying()) musicGameplay.stop();
+        if (musicGameOver?.isPlaying()) musicGameOver.stop();
+        // Reset flags so music can restart if unmuted in the correct state
+        titleMusicStarted = false;
+        selectMusicStarted = false;
+        gameMusicStarted = false;
+        currentAttributionText = ''; // Clear attribution when muted
+        console.log("--- Music MUTED ---");
+    } else {
+        console.log("--- Music UNMUTED ---");
+        // If unmuting, try to restart music for the *current* game state
+        if (gameState === 'titleScreen' && musicPlaying?.isLoaded()) {
+            musicPlaying.loop();
+            titleMusicStarted = true;
+            currentAttributionText = titleAttribution;
+        } else if (gameState === 'characterSelect' && musicSelect?.isLoaded()) {
+            musicSelect.loop();
+            selectMusicStarted = true;
+            currentAttributionText = selectAttribution;
+        } else if ((gameState === 'playing' || gameState === 'fadingOut') && musicGameplay?.isLoaded()) {
+            musicGameplay.loop();
+            gameMusicStarted = true;
+            currentAttributionText = gameplayAttribution;
+        } else if ((gameState === 'gameOver' || gameState === 'gameOverTime') && musicGameOver?.isLoaded()) {
+            musicGameOver.loop();
+            currentAttributionText = gameOverAttribution;
+        }
+         else { // If music for current state isn't loaded, just set text
+             if(gameState === 'titleScreen') currentAttributionText = titleAttribution;
+             else if(gameState === 'characterSelect') currentAttributionText = selectAttribution;
+             else if(gameState === 'playing' || gameState === 'fadingOut') currentAttributionText = gameplayAttribution;
+             else if(gameState === 'gameOver' || gameState === 'gameOverTime') currentAttributionText = gameOverAttribution;
+         }
+    }
+}
+
+// --- Transition from Title to Character Select ---
+function goToCharacterSelect() {
+    console.log("Transitioning to Character Select...");
+    // Stop title/game over/gameplay music if playing
+    if (musicPlaying?.isPlaying()) { musicPlaying.stop(); titleMusicStarted = false; }
+    if (musicGameOver?.isPlaying()) { musicGameOver.stop(); }
+    if (musicGameplay?.isPlaying()) { musicGameplay.stop(); gameMusicStarted = false; }
+
+    // Start select music if not muted and loaded
+    if (!isMuted && musicSelect?.isLoaded() && !selectMusicStarted) {
+        musicSelect.loop();
+        selectMusicStarted = true;
+        currentAttributionText = selectAttribution;
+    } else if (!isMuted) { // Set text even if music not ready/playing
+        currentAttributionText = selectAttribution;
+    } else {
+        currentAttributionText = ''; // Clear if muted
+    }
+    gameState = 'characterSelect'; // Change state
+}
+
+// --- Start the Game (from Character Select) ---
+function startGame() {
+    console.log(`Starting Game with Head Index ${chosenHeadIndex}...`);
+    // Stop title/select/game over music if playing
+    if (musicPlaying?.isPlaying()) { musicPlaying.stop(); titleMusicStarted = false; }
+    if (musicSelect?.isPlaying()) { musicSelect.stop(); selectMusicStarted = false; }
+    if (musicGameOver?.isPlaying()) { musicGameOver.stop(); }
+
+    // Start gameplay music if not muted and loaded
+    if (!isMuted && musicGameplay?.isLoaded()) {
+        musicGameplay.loop();
+        gameMusicStarted = true;
+        currentAttributionText = gameplayAttribution;
+    } else if (!isMuted) { // Set text even if music not ready/playing
+        currentAttributionText = gameplayAttribution;
+    } else {
+        currentAttributionText = ''; // Clear if muted
+    }
+
+    // --- Set Correct Images for Chosen Head ---
+    // Ensure both normal and hit images for the selected index are loaded
+    if (normalHeadImages[chosenHeadIndex] && hitHeadImages[chosenHeadIndex]) {
+        imgNormal = normalHeadImages[chosenHeadIndex];
+        imgHit = hitHeadImages[chosenHeadIndex];
+        currentImage = imgNormal; // Start with the normal image
+        console.log(`Set images for head index ${chosenHeadIndex}.`);
+        calculateImageSize(); // Recalculate sizes based on the chosen head's aspect ratio
+    } else {
+        // If images aren't loaded, log error and stay on select screen
+        console.error(`Cannot start game, images for head index ${chosenHeadIndex} missing or not loaded yet!`);
+        alert(`Images for selected head (${chosenHeadIndex+1}) still loading. Please wait a moment and try again.`);
+        // Revert to character select state to prevent errors
+        gameState = 'characterSelect';
+        // Attempt to restart select music if it was stopped
+         if (!isMuted && musicSelect?.isLoaded() && !selectMusicStarted) {
+             musicSelect.loop();
+             selectMusicStarted = true;
+             currentAttributionText = selectAttribution;
+         }
+        return; // Exit startGame function
+    }
+
+    // --- Reset Game State Variables ---
+    resetOtherStates(); // Reset score, positions, effects, etc.
+    score = 0;          // Explicitly reset score again (belt and suspenders)
+    gameTimer = gameDuration; // Reset timer
+    gameStartTime = millis();   // Record game start time
+    createInitialBumpers();   // Create new set of bumpers
+    hammerAngle = hammerRestAngle; // Reset hammer position
+    isHammerStriking = false;    // Ensure hammer isn't stuck mid-swing
+    addBumperAfterSwing = false; // Reset bumper placement intent
+    hammerLandedHit = false;     // Reset hit flag
+
+    // Change game state to playing
+    gameState = 'playing';
+    console.log("Game Started.");
+}
+
+
+// --- Change State to Game Over (Time Out) ---
+function changeStateToGameOverTime() {
+    console.log("Time's up! Game Over.");
+    checkAndSaveHighScore(); // Save score before changing state
+
+    // Stop gameplay music if playing
+    if (musicGameplay?.isPlaying()) {
+        musicGameplay.stop();
+        gameMusicStarted = false;
+    }
+
+    gameState = 'gameOverTime'; // Change state
+
+    // Start game over music if not muted and loaded
+    if (!isMuted && musicGameOver?.isLoaded() && !musicGameOver.isPlaying()) {
+        musicGameOver.loop();
+        currentAttributionText = gameOverAttribution;
+        console.log("Game Over music started (Time Loss).");
+    } else if (!isMuted) { // Set text even if music not ready/playing
+        currentAttributionText = gameOverAttribution;
+    } else {
+        currentAttributionText = ''; // Clear if muted
+    }
+}
+
+// --- Restart the Entire Sketch (Back to Title Screen) ---
+function restartSketch() {
+    console.log("Resetting to Title Screen...");
+    // Stop all music
+    if (musicGameOver?.isPlaying()) { musicGameOver.stop(); }
+    if (musicPlaying?.isPlaying()) { musicPlaying.stop(); titleMusicStarted = false;}
+    if (musicSelect?.isPlaying()) { musicSelect.stop(); selectMusicStarted = false;}
+    if (musicGameplay?.isPlaying()) { musicGameplay.stop(); gameMusicStarted = false;}
+
+    // Reset game variables
+    resetOtherStates();
+
+    // Reset to default head (index 0)
+    chosenHeadIndex = 0;
+    if (normalHeadImages[chosenHeadIndex]) { // Check if default head loaded
+        imgNormal = normalHeadImages[chosenHeadIndex];
+        if (hitHeadImages[chosenHeadIndex]) { // Check if default hit head loaded
+             imgHit = hitHeadImages[chosenHeadIndex];
+        } else {
+             imgHit = null; // Default hit image might still be loading
+             console.warn("Default hit image not available on restart.");
+        }
+        currentImage = imgNormal; // Set current image to default normal
+        calculateImageSize();      // Recalculate sizes for default head
+    } else {
+        // Critical error if default head didn't load
+        imgNormal = null;
+        imgHit = null;
+        currentImage = null;
+        console.error("FATAL: Default head image (index 0) not loaded. Cannot properly restart.");
+        // Consider drawing an error message here if possible
+    }
+
+    // Reset title screen specific state
+    initializeTitleScreenState();
+
+    // Set game state back to title screen
+    gameState = 'titleScreen';
+    // Music will restart automatically when drawTitleScreen runs (if not muted)
+    console.log("Sketch reset to Title Screen.");
+}
+
+// --- Calculate Size and Position for Bouncing Image on Win Screen ---
+function calculateGameOverImageSizeAndPosition() {
+    // Ensure base dimensions are available
+     if (typeof imgWidth !== 'number' || imgWidth <= 0 || typeof imgHeight !== 'number' || imgHeight <= 0) {
+         if (imgNormal) calculateImageSize(); // Try recalculating if needed
+         // Use defaults if recalculation also fails
+         if (typeof imgWidth !== 'number' || imgWidth <= 0 || typeof imgHeight !== 'number' || imgHeight <= 0) {
+             imgWidth = 100; imgHeight = 100;
+             console.warn("Using default size for Game Over image calculation.");
+         }
+     }
+
+    // Make the game over image slightly larger than gameplay, capped
+    let maxWidthGameOver = maxImageWidth * 1.2; // Cap size increase
+    gameOverImgWidth = min(imgWidth * 1.2, maxWidthGameOver);
+    // Maintain aspect ratio based on the new width
+    let scaleRatio = gameOverImgWidth / (imgWidth * 1.2 || 1); // Avoid division by zero
+    gameOverImgHeight = imgHeight * 1.2 * scaleRatio;
+
+
+    // Define bounce boundaries dynamically based on height
+    gameOverBounceTop = height * 0.15;
+    gameOverBounceBottom = height * 0.45;
+
+    // Ensure calculated height is valid
+    if (typeof gameOverImgHeight !== 'number' || gameOverImgHeight <= 0) gameOverImgHeight = 120; // Fallback height
+
+    // Set initial position slightly above the bottom boundary
+    gameOverY = gameOverBounceBottom - gameOverImgHeight / 2 - 5;
+    gameOverVY = -gameOverBounceSpeed; // Start moving upwards
+
+    console.log("Initialized Game Over image bounce (Win).");
+}
+
+// --- Input Handlers ---
+
+function mousePressed() {
+    userStartAudio(); // Ensure audio context is running on user interaction
+
+    if (gameState === 'playing') {
+        // --- Trigger Hammer Swing in Gameplay ---
+        if (!isHammerStriking) { // Only swing if not already swinging
+            isHammerStriking = true;
+            hammerTargetAngle = hammerStrikeAngle; // Target the down position
+            hammerAnimStartTime = millis();       // Record swing start time
+            hammerHitCheckDone = false;         // Reset hit check flag for this swing
+            hammerLandedHit = false;            // Reset hit status for this swing
+
+            // --- Check if click is intended to place a bumper (missed click) ---
+            let UIMargin = 50; // Avoid placing bumpers near edges or HUD
+            if (mouseX > UIMargin && mouseX < width - UIMargin &&
+                mouseY > UIMargin && mouseY < height - UIMargin) {
+                 // Store potential location, but only add if swing MISSES the face
+                 potentialBumperX = mouseX;
+                 potentialBumperY = mouseY;
+                 addBumperAfterSwing = true; // Flag intention to add bumper
+            } else {
+                 addBumperAfterSwing = false; // Click was in UI area, don't add bumper
+            }
+        }
+    } else if (gameState === 'characterSelect') {
+        // --- Handle Head Selection Click ---
+        // Use layout variables from drawHeadSelect for consistency
+         let selectY = howToPlayBottomApprox + 80; // Recalculate or use stored value
+         let spacing = width / 4;
+         let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
+
+        for (let i = 0; i < 3; i++) { // Loop through the 3 heads
+            let imgXPos = spacing * (i + 1);
+            let displayImg = normalHeadImages[i];
+            let headWidth = currentSelectHeadSize;
+            let headHeight = currentSelectHeadSize; // Assume square initially
+
+            // Calculate actual height based on aspect ratio if image is loaded
+            if (displayImg && displayImg.width > 0) {
+                 let aspect = displayImg.height / displayImg.width || 1;
+                 headHeight = currentSelectHeadSize * aspect;
+            }
+
+            // Calculate clickable bounds (centered around imgXPos, selectY)
+            let headLeft = imgXPos - headWidth / 2;
+            let headRight = imgXPos + headWidth / 2;
+            let headTop = selectY - headHeight / 2;
+            let headBottom = selectY + headHeight / 2;
+
+            // Check if mouse click is within these bounds
+            if (mouseX > headLeft && mouseX < headRight && mouseY > headTop && mouseY < headBottom) {
+                 selectHead(i); // Call selectHead with the index (0, 1, or 2)
+                 break;         // Stop checking once a head is clicked
+            }
+        }
+    }
+     // Clicks in other states (title, game over) are handled by keyPressed
+}
+
+function keyPressed() {
+    userStartAudio(); // Ensure audio context is running
+
+    // --- Mute Toggle ---
+    if (key === 'm' || key === 'M') {
+        toggleMute();
+    }
+    // --- Restart from Game Over Screens ---
+    else if (gameState === 'gameOver' || gameState === 'gameOverTime') {
+        restartSketch();
+    }
+    // --- Proceed from Title Screen ---
+    else if (gameState === 'titleScreen') {
+        goToCharacterSelect();
+    }
+     // No specific key actions needed for 'playing' or 'characterSelect' here
+     // (handled by mouse or state transitions)
+}
+
+function mouseMoved() {
+    // --- Handle Hover Effect on Character Select Screen ---
+    if (gameState === 'characterSelect') {
+        let currentHover = -1; // Assume no hover initially
+         // Use same layout calculations as drawHeadSelect and mousePressed
+         let selectY = howToPlayBottomApprox + 80;
+         let spacing = width / 4;
+         let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
+
+        for (let i = 0; i < 3; i++) {
+            let imgXPos = spacing * (i + 1);
+            let displayImg = normalHeadImages[i];
+            let headWidth = currentSelectHeadSize;
+            let headHeight = currentSelectHeadSize;
+
+            if (displayImg && displayImg.width > 0) {
+                 let aspect = displayImg.height / displayImg.width || 1;
+                 headHeight = currentSelectHeadSize * aspect;
+            }
+
+            let headLeft = imgXPos - headWidth / 2;
+            let headRight = imgXPos + headWidth / 2;
+            let headTop = selectY - headHeight / 2;
+            let headBottom = selectY + headHeight / 2;
+
+            // Check if mouse is within bounds
+            if (mouseX > headLeft && mouseX < headRight && mouseY > headTop && mouseY < headBottom) {
+                 currentHover = i; // Set hovered index
+                 break;           // Stop checking
+            }
+        }
+
+        hoveredHeadIndex = currentHover; // Update the global hover index
+
+        // Play blip sound only when the hovered index *changes* to a valid head
+        if (hoveredHeadIndex !== previousHoverIndex) {
+            if (hoveredHeadIndex !== -1 && selectBlipSound?.isLoaded() && !isMuted) {
+                selectBlipSound.play(); // Play sound on new hover
+            }
+            previousHoverIndex = hoveredHeadIndex; // Update previous index
+        }
+    } else {
+        // If not on character select screen, ensure no hover effect is active
+        hoveredHeadIndex = -1;
+        previousHoverIndex = -1;
+    }
+}
+
+
+// --- Handle Window Resizing ---
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight); // Adjust canvas size
+    createScanlinesGraphic();                // Regenerate scanlines for new size
+
+    // Recalculate image/UI element sizes and positions based on new window dimensions
+    calculateImageSize(); // Recalculate head and hammer sizes
+
+    // Update positions/boundaries that depend on width/height
+    if (gameState === 'playing' || gameState === 'fadingOut') {
+        // Constrain face position within new bounds if necessary
+        let halfW = imgWidth / 2;
+        let halfH = imgHeight / 2;
+        x = constrain(x, halfW, width - halfW);
+        y = constrain(y, halfH, height - halfH);
+         // Optionally: Could reposition bumpers slightly if they go off-screen,
+         // but generally letting them stay might be simpler.
+    } else if (gameState === 'gameOver') {
+        // Recalculate game over bounce boundaries and potentially reposition image
+        gameOverBounceTop = height * 0.15;
+        gameOverBounceBottom = height * 0.45;
+        calculateGameOverImageSizeAndPosition(); // Recalculate size and reset position/velocity
+        // Ensure Y position is still within new bounds
+         if (typeof gameOverY === 'number' && typeof gameOverImgHeight === 'number') {
+            gameOverY = constrain(gameOverY, gameOverBounceTop + gameOverImgHeight / 2, gameOverBounceBottom - gameOverImgHeight / 2);
+         }
+    } else if (gameState === 'gameOverTime') {
+         // Image size is recalculated by calculateImageSize() above. Static position.
+    } else if (gameState === 'titleScreen') {
+        // Reinitialize title screen elements for new layout
+        initializeTitleScreenState();
+    } else if (gameState === 'characterSelect') {
+        // Layout is recalculated dynamically in drawCharacterSelect/drawHowToPlay/drawHeadSelect
+        // No specific repositioning needed here, but recalculateImageSize() updated selectHeadSize.
+    }
+
+    // Reposition fixed UI elements like the mute button
+    if (muteButton) {
+        muteButton.position(20, height - 40);
+    }
+    print(`Window resized to ${windowWidth}x${windowHeight}`);
+}
+
+
+// --- Select Head Function (Called by mousePressed) ---
+function selectHead(index) { // Index is 0, 1, or 2
+    // Play selection sound
+    if (selectBlipSound?.isLoaded() && !isMuted) {
+        selectBlipSound.play();
+    }
+    chosenHeadIndex = index; // Update the chosen head index
+    console.log(`Head index ${chosenHeadIndex} selected`);
+
+    // --- Check if Images Are Loaded Before Starting ---
+    // Critical check: Ensure both normal and hit images exist in the arrays
+    // and ideally have finished loading (p5.js loadImage is async)
+    let normalImgReady = normalHeadImages[chosenHeadIndex] && normalHeadImages[chosenHeadIndex].width > 0;
+    let hitImgReady = hitHeadImages[chosenHeadIndex] && hitHeadImages[chosenHeadIndex].width > 0;
+
+    if (normalImgReady && hitImgReady) {
+        // Images are ready, proceed to start the game
+        startGame();
+    } else {
+        // Images not ready, stay on character select screen and inform user
+        console.error(`Images for head ${chosenHeadIndex + 1} (index ${chosenHeadIndex}) not fully loaded yet! Normal Ready: ${normalImgReady}, Hit Ready: ${hitImgReady}`);
+        // Optional: Visual feedback (e.g., make selection box red briefly?)
+        alert(`Head ${chosenHeadIndex + 1} images still loading... Please wait a moment and click again.`);
+        // Ensure state remains characterSelect
+        gameState = 'characterSelect';
+        // Keep select music playing if it was
+         if (!isMuted && musicSelect?.isLoaded() && !selectMusicStarted) {
+             musicSelect.loop();
+             selectMusicStarted = true;
+             currentAttributionText = selectAttribution;
+         }
+    }
+}
+
+// --- Ensure Audio Context is Running ---
+// Call this on first user interaction (mousePressed/keyPressed)
+function userStartAudio() {
+    if (getAudioContext().state !== 'running') {
+        getAudioContext().resume().then(() => {
+            console.log("AudioContext resumed successfully.");
+        }).catch(e => {
+            console.error("AudioContext resume failed:", e);
+        });
+    }
+}
