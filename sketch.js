@@ -1,82 +1,43 @@
-/*
- * SmashHead - Retro Bounce Game V17.0 (Floating Heads Update)
- * - Floating Heads Effect
- * - Rainbow Text Animations
- * - Fixed Centering, Tighter Layout
- * - Visitor Counter & Favicon supported
- */
-
-// --- Global Variables ---
-let normalHeadImages = [], hitHeadImages = [], imgNormal, imgHit, hammerImg;
-let gameState = 'titleScreen', selectHue = 0, hoveredHeadIndex = -1;
-let retroFont, hammerDisplayWidth, hammerDisplayHeight;
-let isMuted = false, musicPlaying, musicSelect, musicGameplay, musicGameOver;
-let titleMusicStarted = false, selectMusicStarted = false, gameMusicStarted = false;
-let currentAttributionText = '';
-let smashHeadFloatingOffset = [0, 0, 0];
-
-// Colors
-let pacManBlack, pacManYellow, pacManCyan, pacManRed;
-
-function preload() {
-  retroFont = loadFont('PressStart2P-Regular.ttf');
-  imgNormal = loadImage('face5.png');
-  hammerImg = loadImage('hammer.png');
-  musicPlaying = loadSound('bit.mp3');
-  musicSelect = loadSound('bitmap.mp3');
-  musicGameplay = loadSound('Panic.mp3');
-  musicGameOver = loadSound('pooka.mp3');
-}
-
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  colorMode(RGB);
-  textAlign(CENTER, CENTER);
-  pacManBlack = color(0);
-  pacManYellow = color(255, 255, 0);
-  pacManCyan = color(0, 255, 255);
-  pacManRed = color(255, 0, 0);
-
-  hammerDisplayWidth = 100;
-  hammerDisplayHeight = 150;
-
-  normalHeadImages = [imgNormal, imgNormal, imgNormal];
-}
-
-function draw() {
-  background(pacManBlack);
-  if (gameState === 'titleScreen') {
-    drawTitleScreen();
-  } else if (gameState === 'characterSelect') {
-    drawCharacterSelect();
-  }
-}
-
-function drawTitleScreen() {
-  fill(pacManYellow);
-  textSize(50);
-  text('SMASH HEAD', width/2, height/2);
-}
-
 function drawCharacterSelect() {
   background(pacManBlack);
 
+  // --- Music on Select Screen ---
   if (!isMuted && !selectMusicStarted && musicSelect?.isLoaded()) {
     musicSelect.loop();
     selectMusicStarted = true;
+    currentAttributionText = selectAttribution;
   }
 
-  // Rainbow SmashHead mini-logo
+  // --- SmashHEAD Logo at Top (50% smaller) ---
+  textAlign(CENTER, CENTER);
+  if (retroFont) textFont(retroFont);
+  else textFont('monospace');
   push();
-  colorMode(HSB);
+  colorMode(HSB, 360, 100, 100, 100);
   fill((frameCount) % 360, 90, 100);
   textSize(40);
-  text('SMASH', width/2, 50);
-  text('HEAD', width/2, 90);
+  text("SMASH", width / 2, 60);
+  text("HEAD", width / 2, 100);
   pop();
 
-  // Instructions Box
-  let instructionsArray = [
+  // --- How to Play Box ---
+  let instructionY = 160;
+  let instructionWidth = width * 0.65;
+  let hammerScale = 0.8;
+  if (!hammerDisplayWidth || !hammerDisplayHeight) calculateImageSize();
+  let hammerW = (hammerDisplayWidth || 100) * hammerScale;
+  let hammerH = (hammerDisplayHeight || 150) * hammerScale;
+  let totalBlockWidth = instructionWidth + hammerW + 40;
+  let blockStartX = (width - totalBlockWidth) / 2;
+  let imgX = blockStartX + hammerW / 2;
+  let imgY = instructionY + hammerH * 0.6;
+  let textX = imgX + hammerW / 2 + 20;
+  let framePadding = 20;
+  let frameX = blockStartX - framePadding / 2;
+  let frameY = instructionY - framePadding * 1.5;
+
+  // Instructions Array
+  const instructionsArray = [
     "HOW TO PLAY",
     "",
     "SmashHead needs your help!",
@@ -88,84 +49,107 @@ function drawCharacterSelect() {
     "More smacks = more chaos = more wins."
   ];
 
-  let instructionY = 140;
-  let instructionWidth = width * 0.65;
-  let lineSpacing = 26;
-  let textX = width * 0.2;
+  let instructionSize = 20;
+  let lineSpacing = 25;
+  let estimatedLines = instructionsArray.length;
+  let estTextHeight = estimatedLines * lineSpacing + 30;
+  let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
+  let frameWidth = totalBlockWidth + framePadding;
 
-  fill(0, 0, 100, 80);
-  noStroke();
-  rect(width*0.1, instructionY-40, width*0.8, 300);
+  // Draw Frame
+  noFill();
   stroke(pacManCyan);
   strokeWeight(4);
-  noFill();
-  rect(width*0.1, instructionY-40, width*0.8, 300);
+  rect(frameX, frameY, frameWidth, frameHeight);
   noStroke();
 
+  // Subtle Background
+  fill(0, 0, 100, 80);
+  rect(frameX + 5, frameY + 5, frameWidth - 10, frameHeight - 10);
+
+  // Instructions Text
   textAlign(LEFT, TOP);
+  textLeading(lineSpacing);
   for (let i = 0; i < instructionsArray.length; i++) {
     let line = instructionsArray[i];
     if (line.trim() !== "") {
       push();
-      colorMode(HSB);
-      fill((frameCount + i * 20) % 360, 80, 100);
+      colorMode(HSB, 360, 100, 100, 100);
       if (i === 0) {
-        textSize(22);
+        let pulse = 1 + 0.05 * sin(millis() / 300);
+        textSize(instructionSize * pulse);
       } else {
-        textSize(18);
+        textSize(instructionSize);
       }
-      text(line, textX, instructionY + i * lineSpacing);
+      fill((frameCount + i * 20) % 360, 80, 100);
+      text(line, textX, instructionY + i * lineSpacing, instructionWidth);
       pop();
     }
   }
 
-  // Heads Floating
-  let centerX = width/2;
-  let selectY = height * 0.72;
-  let spacing = 140;
+  // Hammer Image
+  if (hammerImg && typeof hammerDisplayHeight === 'number') {
+    push();
+    translate(imgX, imgY);
+    rotate(-PI / 6);
+    imageMode(CENTER);
+    image(hammerImg, 0, 0, hammerW, hammerH);
+    pop();
+    imageMode(CENTER);
+  }
+
+  // --- Pick Your Head Section ---
+  let centerX = width / 2;
+  let selectY = frameY + frameHeight + 170; // Lower heads
+  let spacing = 150; // tighter heads
   let headNames = ["Ol' Greenie", "Blurg", "Frank"];
 
-  selectHue = (selectHue + 1) % 360;
-
-  // Headline
+  selectHue = (selectHue + 1.5) % 360;
+  textAlign(CENTER, CENTER);
+  textSize(26);
   push();
-  colorMode(HSB);
+  colorMode(HSB, 360, 100, 100, 100);
   fill(selectHue, 90, 100);
-  textSize(28);
-  text('Pick your head to SMASH!', centerX, selectY - 100);
+  text("Pick your head to SMASH!", centerX, selectY - 80); // headline above
   pop();
+  colorMode(RGB, 255, 255, 255, 255);
 
-  // Floating heads
+  // Draw Heads
   for (let i = 0; i < 3; i++) {
-    let imgXPos = centerX + (i-1) * spacing;
-    let floatOffset = 10 * sin(radians(frameCount*2 + i*60));
-    imageMode(CENTER);
-    if (normalHeadImages[i]) {
-      image(normalHeadImages[i], imgXPos, selectY + floatOffset, 80, 80);
-    } else {
-      fill(pacManRed);
-      rect(imgXPos, selectY + floatOffset, 80, 80);
+    let displayImg = normalHeadImages[i];
+    let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
+    let imgXPos = centerX + (i - 1) * spacing;
+    let currentHeadHeight = currentSelectHeadSize;
+    let aspect = 1;
+    if (displayImg && displayImg.width > 0) {
+      aspect = displayImg.height / displayImg.width || 1;
+      currentHeadHeight = currentSelectHeadSize * aspect;
     }
 
-    // Names
+    let hoverOffsetY = 0;
+    let hoverScale = 1.0;
+
+    if (i === hoveredHeadIndex) {
+      hoverOffsetY = -10 * abs(sin(millis() / 200));
+      hoverScale = 1.05;
+    }
+
+    push();
+    translate(imgXPos, selectY + hoverOffsetY);
+    scale(hoverScale);
+    if (displayImg && displayImg.width > 0) {
+      imageMode(CENTER);
+      image(displayImg, 0, 0, currentSelectHeadSize, currentHeadHeight);
+    } else {
+      fill(pacManRed);
+      rectMode(CENTER);
+      rect(0, 0, currentSelectHeadSize, currentSelectHeadSize);
+    }
+    pop();
+
+    // Draw names
     fill(pacManYellow);
-    textSize(16);
-    text(headNames[i], imgXPos, selectY + 50 + floatOffset);
-  }
-}
-
-function keyPressed() {
-  if (gameState === 'titleScreen') {
-    gameState = 'characterSelect';
-  }
-}
-
-function mousePressed() {
-  userStartAudio();
-}
-
-function userStartAudio() {
-  if (getAudioContext().state !== 'running') {
-    getAudioContext().resume();
+    textAlign(CENTER, TOP);
+    text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
   }
 }
