@@ -1,4 +1,3 @@
-@ -1,17 +1,235 @@
 // --- SmashHead Retro Game V17 (Clean Full Build) ---
 // Heads float and hover match properly, fonts load, layout polished
 
@@ -277,7 +276,3 @@ function drawCharacterSelect() {
     text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
   }
 }
-
-here is my currennt code. 
-
-I want to move the heads down on teh Choose your head to smsh page
