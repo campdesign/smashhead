@@ -299,7 +299,7 @@ function drawCharacterSelect() {
   let frameX = blockStartX - framePadding / 2;
   let frameY = instructionY - framePadding * 1.5;
 
-  // Instructions as an array of lines
+  // Instructions Array
   const instructionsArray = [
     "HOW TO PLAY",
     "",
@@ -319,44 +319,38 @@ function drawCharacterSelect() {
   let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
   let frameWidth = totalBlockWidth + framePadding;
 
-  // Draw outer frame
+  // Draw Frame
   noFill();
   stroke(pacManCyan);
   strokeWeight(4);
   rect(frameX, frameY, frameWidth, frameHeight);
   noStroke();
 
-  // Draw subtle background inside frame
+  // Subtle Background
   fill(0, 0, 100, 80);
-  noStroke();
-  let innerPadding = 5;
-  rect(frameX + innerPadding, frameY + innerPadding, frameWidth - 2 * innerPadding, frameHeight - 2 * innerPadding);
+  rect(frameX + 5, frameY + 5, frameWidth - 10, frameHeight - 10);
 
-  // --- Draw Instructions Text, Line by Line ---
+  // Instructions Text
   textAlign(LEFT, TOP);
   textLeading(lineSpacing);
-
   for (let i = 0; i < instructionsArray.length; i++) {
     let line = instructionsArray[i];
     if (line.trim() !== "") {
       push();
       colorMode(HSB, 360, 100, 100, 100);
-
-      // Pulse for HOW TO PLAY only
       if (i === 0) {
         let pulse = 1 + 0.05 * sin(millis() / 300);
         textSize(instructionSize * pulse);
       } else {
         textSize(instructionSize);
       }
-
       fill((frameCount + i * 20) % 360, 80, 100);
       text(line, textX, instructionY + i * lineSpacing, instructionWidth);
       pop();
     }
   }
 
-  // --- Draw Hammer Image ---
+  // Hammer Image
   if (hammerImg && typeof hammerDisplayHeight === 'number') {
     push();
     translate(imgX, imgY);
@@ -368,149 +362,58 @@ function drawCharacterSelect() {
   }
 
   // --- Pick Your Head Section ---
-// --- Pick Your Head Section ---
-let selectY = frameY + frameHeight + 150; // Lower position for heads
-let spacing = 180; // Manual spacing between heads (tighter)
-let centerX = width / 2;
-let headNames = ["Ol' Greenie", "Blurg", "Frank"];
+  let centerX = width / 2;
+  let selectY = frameY + frameHeight + 170; // Lower heads
+  let spacing = 150; // tighter heads
+  let headNames = ["Ol' Greenie", "Blurg", "Frank"];
 
-selectHue = (selectHue + 1.5) % 360;
-if (retroFont) textFont(retroFont);
-else textFont('monospace');
-
-// First draw the "Pick your head" headline ABOVE
-textAlign(CENTER, CENTER);
-textSize(26);
-push();
-colorMode(HSB, 360, 100, 100, 100);
-fill(selectHue, 90, 100);
-text("Pick your head to SMASH!", centerX, selectY - 80); // 80px above heads
-pop();
-colorMode(RGB, 255, 255, 255, 255);
-
-// Now draw the heads
-for (let i = 0; i < 3; i++) {
-  let displayImg = normalHeadImages[i];
-  let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
-  let imgXPos = centerX + (i - 1) * spacing;
-  let currentHeadHeight = currentSelectHeadSize;
-  let aspect = 1;
-  if (displayImg && displayImg.width > 0) {
-    aspect = displayImg.height / displayImg.width || 1;
-    currentHeadHeight = currentSelectHeadSize * aspect;
-  }
-
-  let hoverOffsetY = 0;
-  let hoverScale = 1.0;
-
-  if (i === hoveredHeadIndex) {
-    hoverOffsetY = -10 * abs(sin(millis() / 200)); // Jump up a little with wiggle
-    hoverScale = 1.05; // Slight grow
-  }
-
+  selectHue = (selectHue + 1.5) % 360;
+  textAlign(CENTER, CENTER);
+  textSize(26);
   push();
-  translate(imgXPos, selectY + hoverOffsetY);
-  scale(hoverScale);
-
-  if (displayImg && displayImg.width > 0) {
-    imageMode(CENTER);
-    image(displayImg, 0, 0, currentSelectHeadSize, currentHeadHeight);
-  } else {
-    fill(pacManRed);
-    rectMode(CENTER);
-    rect(0, 0, currentSelectHeadSize, currentSelectHeadSize);
-  }
+  colorMode(HSB, 360, 100, 100, 100);
+  fill(selectHue, 90, 100);
+  text("Pick your head to SMASH!", centerX, selectY - 80); // headline above
   pop();
+  colorMode(RGB, 255, 255, 255, 255);
 
-  // Draw hover box (optional: looks fine without if bouncing nicely)
-  if (i === hoveredHeadIndex) {
-    stroke(pacManYellow);
-    strokeWeight(2);
-    noFill();
-    rect(imgXPos - currentSelectHeadSize/2, selectY - currentHeadHeight/2, currentSelectHeadSize, currentHeadHeight);
-    noStroke();
-  }
-
-  // Draw name below
-  fill(pacManYellow);
-  textAlign(CENTER, TOP);
-  text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
-}
-
-  // Draw hover box (optional: looks fine without if bouncing nicely)
-  if (i === hoveredHeadIndex) {
-    stroke(pacManYellow);
-    strokeWeight(2);
-    noFill();
-    rect(imgXPos - currentSelectHeadSize/2, selectY - currentHeadHeight/2, currentSelectHeadSize, currentHeadHeight);
-    noStroke();
-  }
-
-  // Draw name below
-  fill(pacManYellow);
-  textAlign(CENTER, TOP);
-  text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
-}
-  // Hover box
-  if (i === hoveredHeadIndex) {
-    let boxPadding = 5;
-    let boxW = currentSelectHeadSize + 2 * boxPadding;
-    let boxH = currentHeadHeight + 2 * boxPadding;
-    let boxX = imgXPos - boxW / 2;
-    let boxY = selectY - boxH / 2;
-    stroke(pacManYellow);
-    strokeWeight(3);
-    noFill();
-    rect(boxX, boxY, boxW, boxH);
-    noStroke();
-  }
-  
-  // Draw head or placeholder
-  if (displayImg && displayImg.width > 0) {
-    image(displayImg, imgXPos, selectY, currentSelectHeadSize, currentHeadHeight);
-  } else {
-    fill(pacManRed);
-    rect(imgXPos - currentSelectHeadSize / 2, selectY - currentSelectHeadSize / 2, currentSelectHeadSize, currentSelectHeadSize);
-  }
-  
-  // Draw name below
-  fill(pacManYellow);
-  text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 10);
-}
-
-  // Draw heads, hover box, and names below
-  textAlign(CENTER, TOP);
-  textSize(16);
+  // Draw Heads
   for (let i = 0; i < 3; i++) {
     let displayImg = normalHeadImages[i];
     let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
-    let imgXPos = spacing * (i + 1);
+    let imgXPos = centerX + (i - 1) * spacing;
     let currentHeadHeight = currentSelectHeadSize;
     let aspect = 1;
     if (displayImg && displayImg.width > 0) {
       aspect = displayImg.height / displayImg.width || 1;
       currentHeadHeight = currentSelectHeadSize * aspect;
     }
+
+    let hoverOffsetY = 0;
+    let hoverScale = 1.0;
+
     if (i === hoveredHeadIndex) {
-      let boxPadding = 5;
-      let boxW = currentSelectHeadSize + 2 * boxPadding;
-      let boxH = currentHeadHeight + 2 * boxPadding;
-      let boxX = imgXPos - boxW / 2;
-      let boxY = selectY - boxH / 2;
-      stroke(pacManYellow);
-      strokeWeight(3);
-      noFill();
-      rect(boxX, boxY, boxW, boxH);
-      noStroke();
+      hoverOffsetY = -10 * abs(sin(millis() / 200));
+      hoverScale = 1.05;
     }
+
+    push();
+    translate(imgXPos, selectY + hoverOffsetY);
+    scale(hoverScale);
     if (displayImg && displayImg.width > 0) {
-      image(displayImg, imgXPos, selectY, currentSelectHeadSize, currentHeadHeight);
+      imageMode(CENTER);
+      image(displayImg, 0, 0, currentSelectHeadSize, currentHeadHeight);
     } else {
       fill(pacManRed);
-      rect(imgXPos - currentSelectHeadSize / 2, selectY - currentSelectHeadSize / 2, currentSelectHeadSize, currentSelectHeadSize);
+      rectMode(CENTER);
+      rect(0, 0, currentSelectHeadSize, currentSelectHeadSize);
     }
+    pop();
+
+    // Draw names
     fill(pacManYellow);
-    text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 10);
+    textAlign(CENTER, TOP);
+    text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
   }
 }
 
