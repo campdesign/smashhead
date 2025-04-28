@@ -8,7 +8,7 @@
   <!-- Favicon -->
   <link rel="icon" href="favicon.png" type="image/png">
 
-  <!-- Open Graph and Twitter Card -->
+  <!-- Open Graph and Twitter Card Meta Tags -->
   <meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
   <meta property="og:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
   <meta property="og:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
@@ -20,12 +20,10 @@
   <meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
   <meta name="twitter:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
   <style>
     body {
       margin: 0;
@@ -43,6 +41,7 @@
       transform: translate(-50%, -50%);
       font-size: 18px;
       color: white;
+      font-family: 'Press Start 2P', monospace;
       animation: flash 1.2s linear infinite;
       z-index: 10;
     }
@@ -57,9 +56,9 @@
       bottom: 200px;
       right: 10px;
       color: #FFFF00;
+      font-family: 'Press Start 2P', monospace;
       font-size: 10px;
       opacity: 0.6;
-      font-family: 'Press Start 2P', monospace;
       z-index: 999;
     }
 
@@ -68,7 +67,6 @@
     }
   </style>
 
-  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
   <script src="sketch.js"></script>
@@ -77,9 +75,20 @@
 <body>
   <div id="loading-message">Loading...</div>
 
-  <!-- Credits (no counter for now) -->
   <div id="credits-counter">
-    CREDITS: 👾
+    CREDITS: <span id="visitor-count">...</span>
   </div>
+
+  <script>
+    fetch('https://api.countapi.xyz/hit/campdesign.smashhead/visits')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('visitor-count').innerText = data.value;
+      })
+      .catch(err => {
+        console.error('Visitor count fetch failed:', err);
+        document.getElementById('visitor-count').innerText = '???';
+      });
+  </script>
 </body>
 </html>
