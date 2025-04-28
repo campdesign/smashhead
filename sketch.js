@@ -57,8 +57,9 @@ let gameOverImgWidth, gameOverImgHeight;
 // Hammer Variables
 let hammerImg;
 let hammerAngle;
-let hammerRestAngle = -PI / 5;
-let hammerStrikeAngle = PI / 2.5;
+// Declare globally, but DO NOT initialize with PI here
+let hammerRestAngle;
+let hammerStrikeAngle;
 let hammerTargetAngle;
 let isHammerStriking = false;
 let hammerAnimStartTime = 0;
@@ -200,6 +201,41 @@ function setup() {
 
     // Create Scanlines Effect Graphic
     createScanlinesGraphic();
+// --- Setup ---
+function setup() {
+    print("--- Setup Starting ---");
+    // Remove loading message if it exists
+    let loadingMsg = select('#loading-message');
+    if (loadingMsg) loadingMsg.remove();
+
+    createCanvas(windowWidth, windowHeight);
+    pixelDensity(1); // Ensure graphics buffer matches display density
+    colorMode(RGB, 255, 255, 255, 255);
+    imageMode(CENTER);
+    textAlign(LEFT, TOP); // Default alignment
+
+    // --- Initialize hammer angles HERE using PI ---
+    hammerRestAngle = -PI / 5;
+    hammerStrikeAngle = PI / 2.5;
+    hammerAngle = hammerRestAngle; // Also initialize current angle
+    hammerTargetAngle = hammerRestAngle; // And target angle
+    // --- End Hammer Angle Initialization ---
+
+    // Define Pac-Man Colors
+    pacManBlack = color(0);
+    pacManBlue = color(33, 33, 255);
+    pacManYellow = color(255, 255, 0);
+    pacManPink = color(255, 184, 255);
+    pacManCyan = color(0, 255, 255);
+    pacManOrange = color(255, 184, 82);
+    pacManRed = color(255, 0, 0);
+    ghostColors = [pacManPink, pacManCyan, pacManOrange, pacManRed, pacManBlue];
+
+    // Calculate initial image sizes based on preloaded assets (or defaults)
+    calculateImageSize(); // Use default head 0 for initial calc
+
+    // Create Scanlines Effect Graphic
+    createScanlinesGraphic();
 
     // Create Mute Button
     muteButton = createButton('Mute');
@@ -259,7 +295,7 @@ function setup() {
     currentAttributionText = titleAttribution;
 
     print("--- Setup Finished ---");
-}
+} // End setup()
 
 // ============================
 // --- DRAW FUNCTION (Dispatcher) ---
