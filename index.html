@@ -1,95 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play SmashHead! Retro Bounce Arcade Game</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Bounce Game</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.png" type="image/png">
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.png" type="image/png">
 
-    <!-- Open Graph and Twitter Card Meta Tags -->
-    <meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
-    <meta property="og:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
-    <meta property="og:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
-    <meta property="og:url" content="https://campdesign.github.io/smashhead/">
-    <meta property="og:type" content="website">
+  <!-- Open Graph and Twitter Card Meta Tags -->
+  <meta property="og:title" content="Play SmashHead! Retro Bounce Arcade Game">
+  <meta property="og:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
+  <meta property="og:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
+  <meta property="og:url" content="https://campdesign.github.io/smashhead/">
+  <meta property="og:type" content="website">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Play SmashHead! Retro Bounce Arcade Game">
-    <meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
-    <meta name="twitter:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play SmashHead! Retro Bounce Arcade Game">
+  <meta name="twitter:description" content="Smash bumpers, dodge the hammer, and bounce your way to arcade greatness in SmashHead.">
+  <meta name="twitter:image" content="https://campdesign.github.io/smashhead/smashhead_openG.png">
 
-    <!-- Google Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    <!-- Styles -->
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background: black;
-        color: white;
-        font-family: 'Press Start 2P', monospace;
-      }
-      #loading-message {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 18px;
-        color: white;
-        font-family: 'Press Start 2P', monospace;
-        animation: flash 1.2s linear infinite;
-        z-index: 10;
-      }
-      @keyframes flash {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
-      }
-      #credits-counter {
-        position: fixed;
-        bottom: 200px;
-        right: 10px;
-        color: #FFFF00; /* PacMan Yellow */
-        font-family: 'Press Start 2P', monospace;
-        font-size: 10px;
-        opacity: 0.6;
-        z-index: 999;
-      }
-      #credits-counter:hover {
-        opacity: 1;
-      }
-    </style>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: black;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+    }
 
-    <!-- p5.js libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
-    <script src="sketch.js"></script>
-  </head>
+    #loading-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      animation: flash 1.2s linear infinite;
+      z-index: 10;
+    }
 
-  <body>
-    <div id="loading-message">Loading...</div>
+    @keyframes flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
 
-    <!-- Credits Counter -->
-    <div id="credits-counter">
-      CREDITS: <span id="visitor-count">...</span>
-    </div>
+    #credits-counter {
+      position: fixed;
+      bottom: 200px;
+      right: 10px;
+      color: #FFFF00;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      opacity: 0.6;
+      z-index: 999;
+    }
 
-    <!-- Visitor Count Script -->
-    <script>
-      fetch('https://api.countapi.xyz/hit/campdesign.smashhead/visits')
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById('visitor-count').innerText = data.value;
-        })
-        .catch(err => {
-          console.error('Visitor count fetch failed:', err);
-          document.getElementById('visitor-count').innerText = '???';
-        });
-    </script>
-  </body>
+    #credits-counter:hover {
+      opacity: 1;
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+  <script src="sketch.js"></script>
+</head>
+
+<body>
+  <div id="loading-message">Loading...</div>
+
+  <!-- Credits Placeholder (no counter for now) -->
+  <div id="credits-counter">
+    CREDITS: 👾
+  </div>
+</body>
 </html>
