@@ -41,6 +41,16 @@ let maxImageWidth = 150;
 let hammerLandedHit = false;
 let retroFontURL = 'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap';
 
+function createScanlinesGraphic() {
+  scanlines = createGraphics(windowWidth, windowHeight);
+  scanlines.pixelDensity(1);
+  scanlines.stroke(0, 35);
+  scanlines.strokeWeight(1);
+  for (let i = 0; i < windowHeight; i += 3) {
+    scanlines.line(0, i, windowWidth, i);
+  }
+}
+
 // Attribution
 const titleAttribution = 'Music: bit-shift/Kevin MacLeod (uppbeat.io)';
 const selectAttribution = 'Music: bitmap.mp3 (source TBD)';
