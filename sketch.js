@@ -394,15 +394,50 @@ textSize(16);
 for (let i = 0; i < 3; i++) {
   let displayImg = normalHeadImages[i];
   let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
-  let imgXPos = centerX + (i - 1) * spacing; // Centered positioning
+  let imgXPos = centerX + (i - 1) * spacing;
   let currentHeadHeight = currentSelectHeadSize;
   let aspect = 1;
-  
   if (displayImg && displayImg.width > 0) {
     aspect = displayImg.height / displayImg.width || 1;
     currentHeadHeight = currentSelectHeadSize * aspect;
   }
-  
+
+  let hoverOffsetY = 0;
+  let hoverScale = 1.0;
+
+  if (i === hoveredHeadIndex) {
+    hoverOffsetY = -10 * abs(sin(millis() / 200)); // Jump up a little with wiggle
+    hoverScale = 1.05; // Slight grow
+  }
+
+  push();
+  translate(imgXPos, selectY + hoverOffsetY);
+  scale(hoverScale);
+
+  if (displayImg && displayImg.width > 0) {
+    imageMode(CENTER);
+    image(displayImg, 0, 0, currentSelectHeadSize, currentHeadHeight);
+  } else {
+    fill(pacManRed);
+    rectMode(CENTER);
+    rect(0, 0, currentSelectHeadSize, currentSelectHeadSize);
+  }
+  pop();
+
+  // Draw hover box (optional: looks fine without if bouncing nicely)
+  if (i === hoveredHeadIndex) {
+    stroke(pacManYellow);
+    strokeWeight(2);
+    noFill();
+    rect(imgXPos - currentSelectHeadSize/2, selectY - currentHeadHeight/2, currentSelectHeadSize, currentHeadHeight);
+    noStroke();
+  }
+
+  // Draw name below
+  fill(pacManYellow);
+  textAlign(CENTER, TOP);
+  text(headNames[i], imgXPos, selectY + currentHeadHeight * 0.5 + 20);
+}
   // Hover box
   if (i === hoveredHeadIndex) {
     let boxPadding = 5;
