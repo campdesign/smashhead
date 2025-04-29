@@ -26,6 +26,7 @@ let normalHeadImages = [];
 let hitHeadImages = [];
 let imgNormal, imgHit, currentImage; // Current images in use
 let chosenHeadIndex = 0;
+let titleFaceImg;
 
 // Gameplay State & Timing
 let gameState = 'titleScreen';
@@ -224,7 +225,7 @@ function setup() {
     hitHeadImages[0] = loadImage('face5b.png', () => { slSetup('head1_hit'); if (chosenHeadIndex === 0) imgHit = hitHeadImages[0]; }, (e) => aleSetup(e, 'face5b.png'));
     hitHeadImages[1] = loadImage('face4b.png', () => slSetup('head2_hit'), (e) => aleSetup(e, 'face4b.png'));
     hitHeadImages[2] = loadImage('face3b.png', () => slSetup('head3_hit'), (e) => aleSetup(e, 'face3b.png'));
-
+titleFaceImg = normalHeadImages[0];
     // Load remaining music tracks
     musicSelect = loadSound('bitmap.mp3', () => slSetup('Select Music'), (e) => sleSetup(e, 'MusicSelect'));
     musicGameplay = loadSound('Panic.mp3', () => slSetup('Gameplay Music'), (e) => sleSetup(e, 'MusicGameplay'));
@@ -362,24 +363,26 @@ function drawTitleScreen() {
         text('High Score: ' + highScore, width / 2, smashHeadTargetY + headlineSpacing + 110);
 
         // --- Sweeping Face and Hammer Animation ---
-        // Initialize sweep boundaries if they don't exist
         if (typeof titleSweepEndX !== 'number') {
-             titleSweepEndX = width + (imgWidth || 100) + 50;
-             titleSweepStartX = -(imgWidth || 100) - 50;
+            titleSweepEndX = width + (imgWidth || 100) + 50;
         }
+    titleFaceX += titleFaceSpeed;
+if (titleFaceX > titleSweepEndX) {
+    titleFaceX = titleSweepStartX;
+    titleHammerX = titleSweepStartX - 150;
 
-        // Move face across the screen
-        titleFaceX += titleFaceSpeed;
-        if (titleFaceX > titleSweepEndX) { // Reset position when off-screen
-            titleFaceX = titleSweepStartX;
-            titleHammerX = titleSweepStartX - 150; // Reset hammer behind face
-        }
+    // Pick a random head for the next sweep
+    let randomIndex = floor(random(normalHeadImages.length));
+    if (normalHeadImages[randomIndex]) {
+        titleFaceImg = normalHeadImages[randomIndex];
+    }
+}
         // Add subtle vertical bobbing
         titleFaceY = height * 0.55 + sin(frameCount * 0.03) * 20;
 
         // Move hammer, lagging slightly behind the face
         titleHammerX += titleFaceSpeed;
-        titleHammerY = lerp(titleHammerY, titleFaceY, titleHammerFollowSpeed); // Smoothly follow Y
+        titleHammerY = lerp(titleHammerY, titleFaceY, titleHammerFollowSpeed);
 
         // Trigger hammer swing animation periodically
         if (frameCount % 100 === 0 && !isTitleHammerStriking) {
@@ -389,23 +392,22 @@ function drawTitleScreen() {
 
         // Update hammer angle during swing animation
         if (isTitleHammerStriking) {
-            let elapsed = millis() - titleHammerAnimStartTime; // Use separate timer for title hammer
+            let elapsed = millis() - titleHammerAnimStartTime;
             let progress = constrain(elapsed / hammerAnimDuration, 0, 1);
-            if (progress < 0.5) { // Swing down
+            if (progress < 0.5) {
                 titleHammerAngle = lerp(hammerRestAngle, hammerStrikeAngle, progress * 2);
-            } else { // Swing back up
+            } else {
                 titleHammerAngle = lerp(hammerStrikeAngle, hammerRestAngle, (progress - 0.5) * 2);
             }
-            if (progress >= 1) { // End animation
+            if (progress >= 1) {
                 isTitleHammerStriking = false;
                 titleHammerAngle = hammerRestAngle;
             }
         } else {
-            titleHammerAngle = hammerRestAngle; // Keep at rest position
+            titleHammerAngle = hammerRestAngle;
         }
 
         // Draw the face image (use default if specific one failed)
-        let titleFaceImg = normalHeadImages[0]; // Always use the default for title
         if (titleFaceImg && typeof imgWidth === 'number' && imgWidth > 0) {
             image(titleFaceImg, titleFaceX, titleFaceY, imgWidth, imgHeight);
         }
@@ -413,39 +415,47 @@ function drawTitleScreen() {
         // Draw the hammer image
         if (hammerImg && typeof hammerDisplayHeight === 'number' && hammerDisplayHeight > 0) {
             push();
-            translate(titleHammerX, titleHammerY); // Position at hammer's coordinates
-            rotate(titleHammerAngle);           // Rotate around its pivot
-            image(hammerImg, 0, 0, hammerDisplayWidth, hammerDisplayHeight); // Draw centered
+            translate(titleHammerX, titleHammerY);
+            rotate(titleHammerAngle);
+            image(hammerImg, 0, 0, hammerDisplayWidth, hammerDisplayHeight);
             pop();
         }
 
-        // --- Draw "Press Any Key" with Glow ---
-        let pressKeyY = height * 0.80;
-        let pressKeySize = 24;
-        let glowSize = pressKeySize + 2; // Slightly larger for glow effect
-        // Alternate color for flashing effect
+        // --- Draw "INSERT COIN" and "(Press any key to continue)" ---
+        let insertCoinY = height * 0.80;
+        let smallTextY = insertCoinY + 35;
+
+        let insertCoinSize = 32;
+        let smallTextSize = 16;
+        let glowSize = insertCoinSize + 4;
+
         let baseColor = (frameCount % 45 < 25) ? pacManYellow : pacManPink;
-        let glowColor = color(red(baseColor), green(baseColor), blue(baseColor), 80); // Semi-transparent glow
+        let glowColor = color(red(baseColor), green(baseColor), blue(baseColor), 80);
 
         textAlign(CENTER, CENTER);
         if (retroFont) textFont(retroFont); else textFont('monospace');
         noStroke();
 
-        // Draw glow (slightly offset)
+        // Glow behind "Insert Coin"
         fill(glowColor);
         textSize(glowSize);
-        text("PRESS ANY KEY TO CHOOSE HEAD", width / 2 + 1, pressKeyY + 1); // Offset for subtle glow
-        text("PRESS ANY KEY TO CHOOSE HEAD", width / 2 - 1, pressKeyY - 1);
+        text("INSERT COIN", width / 2 + 1, insertCoinY + 1);
+        text("INSERT COIN", width / 2 - 1, insertCoinY - 1);
 
-        // Draw main text
+        // Main "Insert Coin"
         fill(baseColor);
-        textSize(pressKeySize);
-        text("PRESS ANY KEY TO CHOOSE HEAD", width / 2, pressKeyY);
+        textSize(insertCoinSize);
+        text("INSERT COIN", width / 2, insertCoinY);
+
+        // Small "(Press any key to continue)"
+        fill(255);
+        textSize(smallTextSize);
+        text("(Press any key to continue)", width / 2, smallTextY);
     }
 } // End drawTitleScreen()
 
 // ============================
-// --- DRAW CHARACTER SELECT ---
+// --- DRAW CHARACTER SELECT (Polished) ---
 // ============================
 function drawCharacterSelect() {
     background(pacManBlack);
@@ -460,218 +470,122 @@ function drawCharacterSelect() {
     // --- Draw SmashHEAD Logo at Top ---
     textAlign(CENTER, CENTER);
     if (retroFont) textFont(retroFont); else textFont('monospace');
-    textSize(40); // Smaller logo on this screen
+    textSize(40);
     push();
     colorMode(HSB, 360, 100, 100, 100);
-    selectHue = (selectHue + 0.8) % 360; // Slower hue cycle for select screen
+    selectHue = (selectHue + 0.5) % 360;
     fill(selectHue, 90, 100);
-    text("SMASH", width / 2, 60);
+    text("SMASH", width / 2, 50); // Lowered for better breathing room
     text("HEAD", width / 2, 100);
     pop();
-    colorMode(RGB, 255, 255, 255, 255); // Reset color mode
+    colorMode(RGB, 255, 255, 255, 255);
 
-    // --- Draw How to Play Box ---
-    drawHowToPlay(); // Encapsulated drawing logic
+    // --- Draw How to Play Box (tighter) ---
+    drawHowToPlayPolished(); // <--- Call the new polished version
 
-    // --- Draw Head Selection Area ---
-    drawHeadSelect(); // Encapsulated drawing logic
-} // End drawCharacterSelect()
+    // --- Draw Floating Heads ---
+    drawHeadSelectPolished(); // <--- Call the new polished version
+}
 
 // ============================
-// --- Draw How to Play Section ---
+// --- DRAW HOW TO PLAY (Polished) ---
 // ============================
-function drawHowToPlay() {
-    let instructionY = 160; // Top position of the instruction area
-    let instructionWidth = width * 0.65; // Max width for text lines
-    let hammerScale = 0.8; // Scale down the hammer image for display
+function drawHowToPlayPolished() {
+    let blockTopY = 150;
+    let blockHeight = 220;
+    let blockWidth = width * 0.6;
+    let blockX = (width - blockWidth) / 2;
 
-    // Ensure hammer dimensions are calculated
-    if (!hammerDisplayWidth || !hammerDisplayHeight) calculateImageSize();
-    let hammerW = (hammerDisplayWidth || 100) * hammerScale; // Use calculated or default size
-    let hammerH = (hammerDisplayHeight || 150) * hammerScale;
+    // Draw background box
+    noStroke();
+    fill(0, 0, 50, 80);
+    rect(blockX, blockTopY, blockWidth, blockHeight, 10);
 
-    // Calculate layout to center the block (hammer + text)
-    let totalBlockWidth = instructionWidth + hammerW + 40; // Text width + hammer width + spacing
-    let blockStartX = (width - totalBlockWidth) / 2; // Starting X for the centered block
+    // Draw border
+    noFill();
+    stroke(pacManCyan);
+    strokeWeight(1);
+    rect(blockX, blockTopY, blockWidth, blockHeight, 10);
 
-    // Position the hammer image and text within the block
-    let imgX = blockStartX + hammerW / 2; // Center of hammer image X
-    let imgY = instructionY + hammerH * 0.6; // Y pos of hammer (adjust pivot visually)
-    let textX = imgX + hammerW / 2 + 20; // X pos of text (right of hammer + padding)
-
-    // Calculate frame dimensions
-    let framePadding = 20;
-    let frameX = blockStartX - framePadding / 2;
-    let frameY = instructionY - framePadding * 1.5; // Adjust frame Y position
-
-    // Instructions Text
-    const instructionsArray = [
+    // Text inside
+    textAlign(CENTER, TOP);
+    textSize(16);
+    fill(pacManYellow);
+    let instructions = [
         "HOW TO PLAY",
-        "", // Blank line for spacing
+        " ",
         "Click to swing the hammer!",
         "Hit the bouncing head!",
-        "Hit bumpers to clear them.",
+        "Hit bumpers to clear them!",
         "Clear all bumpers to WIN!",
-        "Hit bumpers quickly for COMBOS!",
         "Don't run out of TIME!"
     ];
-    let instructionSize = 14; // Font size for instructions
-    let lineSpacing = 25;     // Vertical space between lines
-    let estimatedLines = instructionsArray.length;
-    let estTextHeight = estimatedLines * lineSpacing + 30; // Estimated text block height
-
-    // Calculate frame size to fit hammer and text
-    let frameHeight = max(hammerH + (imgY - instructionY) + framePadding, estTextHeight) + framePadding * 2;
-    let frameWidth = totalBlockWidth + framePadding;
-
-    // --- Draw the Frame and Background ---
-    // Outer frame (pixel style)
-    noFill();
-    stroke(pacManCyan); // Use a theme color
-    strokeWeight(4);    // Thicker border
-    rect(frameX, frameY, frameWidth, frameHeight); // Draw the outer rectangle
-
-    // Subtle inner background (slightly transparent)
-    noStroke();
-    fill(0, 0, 100, 80); // Dark blue, semi-transparent
-    let innerPadding = 5;
-    rect(frameX + innerPadding, frameY + innerPadding, frameWidth - 2 * innerPadding, frameHeight - 2 * innerPadding);
-
-    // --- Draw Instructions Text, Line by Line ---
-    textAlign(LEFT, TOP); // Align text to the left top
-    textLeading(lineSpacing); // Set line spacing
-    fill(pacManYellow);       // Default text color
-
-    for (let i = 0; i < instructionsArray.length; i++) {
-        let line = instructionsArray[i];
-        if (line.trim() !== "") { // Skip drawing empty lines
-            push();
-            colorMode(HSB, 360, 100, 100, 100); // Use HSB for color variation
-
-            // Special styling for the title "HOW TO PLAY"
-            if (i === 0) {
-                let pulse = 1 + 0.05 * sin(millis() / 300); // Subtle size pulse
-                textSize(instructionSize * pulse * 1.2); // Make title slightly larger and pulse
-                fill(0, 0, 100); // White color for title
-            } else {
-                textSize(instructionSize); // Normal size for other lines
-                 // Cycle through rainbow colors for instruction lines
-                fill((frameCount + i * 20) % 360, 80, 100);
-            }
-
-            text(line, textX, frameY + framePadding + i * lineSpacing, instructionWidth); // Draw text line
-            pop(); // Restore color mode and text size
-        }
+    let lineHeight = 24;
+    for (let i = 0; i < instructions.length; i++) {
+        text(instructions[i], width / 2, blockTopY + 20 + i * lineHeight);
     }
-     colorMode(RGB); // Restore default color mode
-
-    // --- Draw Hammer Image ---
-    if (hammerImg && typeof hammerDisplayHeight === 'number' && hammerDisplayHeight > 0) {
-        push();
-        translate(imgX, imgY); // Position at hammer's location
-        rotate(-PI / 8);       // Slightly tilt the hammer for visual appeal
-        imageMode(CENTER);       // Ensure hammer draws centered
-        image(hammerImg, 0, 0, hammerW, hammerH); // Draw the scaled hammer
-        pop();
-        imageMode(CENTER); // Reset imageMode just in case
-    }
-} // End drawHowToPlay()
-
+}
 
 // ============================
 // --- Draw Floating Heads Selection ---
 // ============================
-function drawHeadSelect() {
-    // Position the head selection area below the How-to-Play box
-    // Use the calculated frame position from drawHowToPlay if available
-    // This requires frameY and frameHeight to be accessible or recalculated/passed
-    // For simplicity, let's use a fixed offset based on typical frame height.
-    // A more robust solution would involve passing layout info.
-    // Estimate bottom of how-to-play (needs refinement if layout changes drastically)
-    let howToPlayBottomApprox = 160 + max( (hammerDisplayHeight || 150) * 0.8 + (160 + (hammerDisplayHeight || 150)*0.8 * 0.6 - 160) + 20, (8 * 25 + 30)) + 20 * 2;
-    let selectY = howToPlayBottomApprox + 80; // Y position for the row of heads
-    let spacing = width / 4; // Horizontal spacing between heads
+// ============================
+// --- DRAW HEAD SELECT (Polished) ---
+// ============================
+function drawHeadSelectPolished() {
+    let selectY = height * 0.58;
+    let spacing = width / 4;
+    let headNames = ["Ol' Greenie", "Blurg", "Frank"];
 
-    let headNames = ["Ol' Greenie", "Blurg", "Frank"]; // Names corresponding to indices 0, 1, 2
+    textAlign(CENTER, TOP);
+    textSize(18);
 
-    // Draw "Pick your head" text
-    if (retroFont) textFont(retroFont); else textFont('monospace');
-    textAlign(CENTER, CENTER);
-    textSize(26);
-    push();
-    colorMode(HSB, 360, 100, 100, 100);
-    // Use the same selectHue as the logo for consistency
-    fill(selectHue, 90, 100);
-    text("Pick your head to SMASH!", width / 2, selectY - 50); // Position text above heads
-    pop();
-    colorMode(RGB, 255, 255, 255, 255);
-
-    // --- Draw Heads, Hover Box, and Names ---
-    textAlign(CENTER, TOP); // Align names below heads
-    textSize(16);           // Font size for names
-
-    for (let i = 0; i < 3; i++) { // Assuming 3 heads
+    for (let i = 0; i < 3; i++) {
+        let imgXPos = spacing * (i + 1);
         let displayImg = normalHeadImages[i];
-        // Use calculated selectHeadSize, or a default if not ready
-        let currentSelectHeadSize = typeof selectHeadSize === 'number' ? selectHeadSize : 90;
-        let imgXPos = spacing * (i + 1); // Calculate X position based on spacing
+        let headWidth = selectHeadSize || 90;
+        let headHeight = selectHeadSize || 90;
 
-        // Calculate aspect ratio and height dynamically
-        let currentHeadHeight = currentSelectHeadSize; // Default to square
-        let aspect = 1;
         if (displayImg && displayImg.width > 0) {
-            aspect = displayImg.height / displayImg.width;
-            currentHeadHeight = currentSelectHeadSize * aspect;
+            let aspect = displayImg.height / displayImg.width;
+            headHeight = headWidth * aspect;
         }
 
-        // --- Hover Effects ---
-        let hoverOffsetY = 0; // Vertical offset for hover bobbing
-        let hoverScale = 1.0;  // Scale factor for hover zoom
-
-        if (i === hoveredHeadIndex) { // Check if this head is being hovered over
-            hoverOffsetY = -10 * abs(sin(millis() / 200)); // Bob up and down
-            hoverScale = 1.05; // Slightly enlarge
-
-            // Draw yellow selection box around the hovered head
-            let boxPadding = 5;
-            let boxW = currentSelectHeadSize + 2 * boxPadding;
-            let boxH = currentHeadHeight + 2 * boxPadding;
-            let boxX = imgXPos - boxW / 2; // Top-left X of the box
-            let boxY = selectY - currentHeadHeight / 2 - boxPadding; // Top-left Y (use actual head height)
-
-            stroke(pacManYellow);
-            strokeWeight(3);
-            noFill();
-            rect(boxX, boxY, boxW, boxH); // Draw the rectangle
-            noStroke(); // Reset stroke
+        // Hover effect
+        let hoverOffsetY = 0;
+        let hoverScale = 1.0;
+        if (i === hoveredHeadIndex) {
+            hoverOffsetY = -8 * sin(millis() / 300);
+            hoverScale = 1.12; // Slightly larger on hover now
         }
 
-        // --- Draw Head Image ---
         push();
-        translate(imgXPos, selectY + hoverOffsetY); // Apply hover offset
-        scale(hoverScale);                        // Apply hover scale
+        translate(imgXPos, selectY + hoverOffsetY);
+        scale(hoverScale);
 
+        // Draw glow if hovered
+        if (i === hoveredHeadIndex) {
+            noStroke();
+            fill(255, 255, 0, 60);
+            ellipse(0, 0, headWidth * 1.6, headHeight * 1.6);
+        }
+
+        // Draw head
         if (displayImg && displayImg.width > 0) {
-            imageMode(CENTER); // Ensure image draws centered at translated origin
-            image(displayImg, 0, 0, currentSelectHeadSize, currentHeadHeight); // Draw head
+            imageMode(CENTER);
+            image(displayImg, 0, 0, headWidth, headHeight);
         } else {
-            // Fallback: Draw a red square if the image hasn't loaded yet
             fill(pacManRed);
             rectMode(CENTER);
-            rect(0, 0, currentSelectHeadSize, currentSelectHeadSize); // Draw placeholder
+            rect(0, 0, headWidth, headWidth);
         }
-        pop(); // Restore translation and scale
+        pop();
 
-        // --- Draw Head Name Below Image ---
-        fill(pacManYellow);
-        textAlign(CENTER, TOP); // Align text top-center
-        // Position name below the calculated bottom edge of the head image
-        text(headNames[i], imgXPos, selectY + currentHeadHeight / 2 + 10);
+        // Name label (fixed so it doesn't drift on hover)
+        fill(i === hoveredHeadIndex ? pacManYellow : 200);
+        text(headNames[i], imgXPos, selectY + (headHeight * hoverScale) / 2 + 10);
     }
-     imageMode(CENTER); // Reset just in case
-     rectMode(CORNER); // Reset just in case
-} // End drawHeadSelect()
-
+}
 
 // ============================
 // --- PLAYING STATE ---
